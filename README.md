@@ -6,4 +6,3 @@ Developer : Laurent Frobert
 
 ## Compiler le source 
 * On utilise  ANT qui utilise, par défaut, le fichier "build.xml". 
-
