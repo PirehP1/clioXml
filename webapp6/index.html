@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>ClioXML</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  
+  <link rel="stylesheet" type="text/css" href="resources/css/contingence.css">
+    <link rel="stylesheet" type="text/css" href="theme/neptune/ext-theme-neptune-all.css"> 
+  
+   <link rel="stylesheet" type="text/css" href="resources/css/ItemSelector.css">
+   
+          <script type="text/javascript" src="ext-all-debug-min.js"></script> 
+        
+        
+         <script type="text/javascript" src="theme/neptune/ext-theme-neptune.js"></script> 
+        
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<script language="javascript" type="text/javascript" src="jquery.min.js"></script> 
+	<!--   <script language="javascript" type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js"></script> -->
+	
+	<script language="javascript" type="text/javascript" src="resources/js/jquery.form.js"></script>
+	<script language="javascript" type="text/javascript" src="displaySchema.js"></script>
+	
+	<script type="text/javascript" src="resources/js/d3.v3.min.js"></script>
+	<script type="text/javascript" src="resources/js/contingence.js"></script>
+	
+	<script src="ace2/ace.js" type="text/javascript" charset="utf-8"></script>
+	  <script src="ace2/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
+	  
+	  
+	  <script src="ace2/mode-xml.js" type="text/javascript" charset="utf-8"></script>
+	  <script src="ace2/mode-xquery.js" type="text/javascript" charset="utf-8"></script>
+	  <script src="ace2/myxquery.js" type="text/javascript" charset="utf-8"></script>
+	  <script src="ace2/init_editor.js" type="text/javascript" charset="utf-8"></script> 
+	  <script src="resources/js/xslt.js"></script>
+	  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js"></script> 
+	  <script type="text/javascript" src="resources/js/jquery.ui.treemap.js"></script>
+    <script type="text/javascript" src="app.js"></script>
+ <style>
+ .ace_xquery_error{
+    position:absolute;
+    background:rgba(200,0,0,0.5);
+    z-index:20
+  }
+  
+  .ace_xquery_warning{
+    position:absolute;
+    background:rgba(200,200,0,0.5);
+    z-index:20
+  }
+  
+ .search_term_found{
+  position:absolute;
+  background:#990;
+  color:#000;
+    z-index:40
+}
+
+ .prevbutton {
+	background-image: url("theme/neptune/images/grid/page-prev.png") 0 0 no-repeat !important;
+ }
+ 
+ .x-grid-row  .x-myhidden-display {
+    display:none
+}
+
+.x-grid-row:hover  .x-myhidden-display {
+    display:inline-block
+}
+
+
+		.noicon {
+			display:none;
+		}
+		.hiddenicon {
+			visibility:hidden;
+		}
+		
+		.delete-icon {background:url('resources/images/remove.png') !important;}
+		.rowinactive {
+			text-decoration: line-through;
+		}
+		.x-item-disabled .x-grid-cell-inner {
+			color:gray;
+		}
+		
+		.tableau_brut_ligne {
+			background:grey;
+		}
+		
+		.codage.x-grid-cell-inner:before {
+			content : "Codage";
+		}
+		
+		.italic-cell {
+			font-style: italic;
+			font-size:10px
+		}
+		
+		.bold-cell {
+			font-weight:800;
+		}
+		
+		.project_name {
+			font-weight:800;
+			font-size:15px;
+		}
+		.x-action-col-icon {
+			height: 16px;
+			width: 16px;
+			margin-right: 8px;
+		}
+		
+		.black {
+			background: #000;
+			color:#FFF;
+		}
+		
+		.headerText
+    {		
+    	display:block;
+    	height:128px;
+    	width:30px;
+    	vertical-align:bottom;
+		-webkit-transform: rotate(-90deg);     
+		-moz-transform: rotate(-90deg);     
+		-o-transform: rotate(-90deg);     
+		filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);  
+	}
+	
+	/*
+		.vertical-header-grid .x-grid3-header table,
+.vertical-header-grid .x-grid3-header-offset td {
+   height: 100px!important;
+}
+
+.vertical-header-grid .x-grid3-hd-row td.x-grid3-hd * {
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    width: 75px;
+}
+
+.ext-ie .vertical-header-grid .x-grid3-hd-row td.x-grid3-hd * {
+    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1);
+    position: absolute;
+    left: 25px;
+    bottom: 20px;
+}
+
+.vertical-header-grid .x-grid3-hd-row td.x-grid3-hd {
+    text-align: right;
+    font-weight: bold;
+    border-left-color: #fff;
+}
+
+.vertical-header-grid .x-grid3-hd-row td.x-grid3-hd {
+    position: relative;
+}
+*/
+	</style>
+</head>
+<body>
+ <form id="formDownload"  action="/service/commands" method="post"></form>
+ 
+</body>
+</html>

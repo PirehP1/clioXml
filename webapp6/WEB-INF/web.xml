@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app
+        version="3.0"
+        xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+
+<servlet>
+		<servlet-name>proxy</servlet-name>
+    <servlet-class>clioxml.servlet.ClioXMLProxyServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+    <async-supported>true</async-supported>
+	</servlet>
+	
+  <servlet>
+        <servlet-name>job</servlet-name>
+        <servlet-class>clioxml.servlet.JobServlet</servlet-class>
+    </servlet>
+    
+ <servlet>
+        <servlet-name>commands</servlet-name>
+        <servlet-class>clioxml.servlet.CommandsServlet</servlet-class>
+    </servlet>
+    
+   <servlet>
+        <servlet-name>uploadDocument</servlet-name>
+        <servlet-class>clioxml.servlet.UploadDocumentServlet</servlet-class>
+        <multipart-config>
+            <max-file-size>104857600</max-file-size>
+            <max-request-size>209715200</max-request-size>
+            <file-size-threshold>52428800</file-size-threshold>            
+        </multipart-config>
+    </servlet>
+	<servlet>
+        <servlet-name>uploadProjet</servlet-name>
+        <servlet-class>clioxml.servlet.UploadProjetServlet</servlet-class>
+        <multipart-config>
+            <max-file-size>1048576000</max-file-size>
+            <max-request-size>1048576000</max-request-size>
+            <file-size-threshold>1048576000</file-size-threshold>            
+        </multipart-config>
+    </servlet>
+    <servlet>
+        <servlet-name>uploadBase</servlet-name>
+        <servlet-class>clioxml.servlet.UploadBaseServlet</servlet-class>
+        <multipart-config>
+            <max-file-size>1048576000</max-file-size>
+            <max-request-size>1048576000</max-request-size>
+            <file-size-threshold>1048576000</file-size-threshold>            
+        </multipart-config>
+    </servlet>
+	 <servlet>
+        <servlet-name>uploadCodage</servlet-name>
+        <servlet-class>clioxml.servlet.UploadCodageServlet</servlet-class>
+        <multipart-config>
+            <max-file-size>104857600</max-file-size>
+            <max-request-size>209715200</max-request-size>
+            <file-size-threshold>52428800</file-size-threshold>            
+        </multipart-config>
+    </servlet>
+    
+    <servlet>
+        <servlet-name>uploadFiltre</servlet-name>
+        <servlet-class>clioxml.servlet.UploadFiltreServlet</servlet-class>
+        <multipart-config>
+            <max-file-size>104857600</max-file-size>
+            <max-request-size>209715200</max-request-size>
+            <file-size-threshold>52428800</file-size-threshold>            
+        </multipart-config>
+    </servlet>
+	
+	<servlet>
+        <servlet-name>uploadSchema</servlet-name>
+        <servlet-class>clioxml.servlet.UploadSchemaServlet</servlet-class>
+        <multipart-config>
+            <max-file-size>104857600</max-file-size>
+            <max-request-size>209715200</max-request-size>
+            <file-size-threshold>52428800</file-size-threshold>            
+        </multipart-config>
+    </servlet>
+	
+	<servlet-mapping>
+	  <servlet-name>proxy</servlet-name>
+	  <url-pattern>/service/getSchema</url-pattern>
+	</servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>job</servlet-name>
+        <url-pattern>/service/job</url-pattern>
+    </servlet-mapping>
+    
+   
+    <servlet-mapping>
+        <servlet-name>commands</servlet-name>
+        <url-pattern>/service/commands</url-pattern>
+    </servlet-mapping>
+    
+   <servlet-mapping>
+        <servlet-name>uploadDocument</servlet-name>
+        <url-pattern>/UploadDocument</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>uploadProjet</servlet-name>
+        <url-pattern>/UploadProjet</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>uploadBase</servlet-name>
+        <url-pattern>/UploadBase</url-pattern>
+    </servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>uploadCodage</servlet-name>
+        <url-pattern>/UploadCodage</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>uploadFiltre</servlet-name>
+        <url-pattern>/UploadFiltre</url-pattern>
+    </servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>uploadSchema</servlet-name>
+        <url-pattern>/UploadSchema</url-pattern>
+    </servlet-mapping>
+ 
+ <filter>
+    <filter-name>CacheControl</filter-name>
+    <filter-class>clioxml.servlet.NoCacheFilter</filter-class>
+	<init-param>
+		<param-name>excludePatterns</param-name>
+		<param-value>/getSchema/*</param-value>
+    </init-param>
+</filter>
+
+<filter-mapping>
+    <filter-name>CacheControl</filter-name>
+ <!--   <url-pattern>*</url-pattern> -->
+	<url-pattern>*.css</url-pattern>
+	<url-pattern>*.js</url-pattern>
+</filter-mapping>
+    
+ <welcome-file-list>
+   <welcome-file>index.html</welcome-file>
+   <welcome-file>index.htm</welcome-file>
+   <welcome-file>index.jsp</welcome-file>
+   <welcome-file>default.html</welcome-file>
+   <welcome-file>default.htm</welcome-file>
+   <welcome-file>default.jsp</welcome-file>
+ </welcome-file-list>
+ <session-config>
+    <session-timeout>-1</session-timeout>
+</session-config>
+</web-app>

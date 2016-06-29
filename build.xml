@@ -1,0 +1,38 @@
+<project name="clioxml" default="war" basedir=".">
+	
+<target name="war" description="--> Creates self-executing war">
+  <property name="staging.dir" location="${basedir}/staging"/>
+  <property name="webapp.dir" location="${basedir}/webapp6"/>
+
+  <mkdir dir="${staging.dir}"/>
+  
+  <copy todir="tmp">
+    <fileset dir="bin" includes="**/*"/>
+  </copy>
+  
+  <!-- assumes you have all of your war content (excluding classes and libraries) already structured in a directory called src/webapp -->
+  <!-- e.g. -->
+  <!-- src/webapp/index.html -->
+  <!-- src/webapp/WEB-INF/web.xml -->
+  <!-- src/webapp/WEB-INF/classes/my.properties -->
+  <!-- etc ... -->
+  <copy todir="${staging.dir}">
+    <fileset dir="${webapp.dir}" includes="**/*"/>
+  </copy>
+	
+		
+
+  
+	
+  <war destfile="tmp/clioxml.war" webxml="${webapp.dir}/WEB-INF/web.xml"> <!-- war -->
+  	
+    <fileset dir="${staging.dir}" includes="**/*"/>
+    <!--
+    <classes dir="bin"/> 
+   <lib dir="libs"/>
+   -->
+  </war>
+
+  <delete dir="${staging.dir}"/>
+</target>
+</project>

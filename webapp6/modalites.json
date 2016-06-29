@@ -1,0 +1,56 @@
+
+		[
+		{
+			"text": "codage 2",
+			"modalite":"Femme",
+			"newValue" : "Femme", // cette valeur doit être présente !
+			"expanded":false,
+		  
+			"iconCls":"noicon",
+			"active": true,
+			"children": [
+				{
+					"modalite": "F",
+					"leaf": true,
+					"iconCls":"noicon",
+					 "text":"(5)",
+					"active": true
+				},
+				{
+					"modalite": "Feme",
+					"leaf": true,
+					"iconCls":"noicon",
+					 "text":"(9)",
+					"active": true
+				}
+			
+			]
+		},
+		{
+			"text": "codage 3",
+			"modalite":"Homme",
+			"newValue" : "Homme",
+			"expanded":false,
+		  
+			"iconCls":"noicon",
+			"active": true,
+			"children": [
+				{
+					"modalite": "M",
+					"leaf": true,
+					"iconCls":"noicon",
+					 "text":"(5)",
+					"active": true
+				},
+				{
+					"modalite": "Male",
+					"leaf": true,
+					"iconCls":"noicon",
+					 "text":"(89)",
+					"active": true
+				}
+			
+			]
+		}
+		]
+	
