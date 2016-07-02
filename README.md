@@ -8,11 +8,11 @@ Developer : Laurent Frobert
 ClioXML est un logiciel développé avec le soutient du projet de recherche Studium parisiense. Son objectif est de permettre aux chercheurs comme aux étudiants d'explorer, d'interroger, d'exploiter les données structurées dans un fichier ou ensemble de fichiers xml. 
 Il s'agit donc essentiellement de manipuler des données dans un objectif de recherche afin de produire graphiques, tableaux. 
 	Celui-ci a donc quatre objectifs principaux :
-création, modification d'un schéma à la volée
-1. coder des éléments ou des attributs
 
-explorer les données par une interface permettant à l'utilisateur de se représenter et de comprendre les jeux de données en explorant leurs natures, leurs relations et leurs distributions ainsi qu'en mettant en lumière les densités d'informations
-interroger les données en effectuant des requêtes de manière intuitive via une interface graphique ou par la rédaction assistée d'une requête exploiter par des requêtes de requêtes, des requêtes sur tables et requêtes associées ou via une exportation de résultats ou de jeux de données pour une utilisation dans d'autres logiciels d'exploitation de données.
+	- création, modification d'un schéma à la volée
+	- coder des éléments ou des attributs
+	- explorer les données par une interface permettant à l'utilisateur de se représenter et de comprendre les jeux de données en explorant leurs natures, leurs relations et leurs distributions ainsi qu'en mettant en lumière les densités d'informations
+	- interroger les données en effectuant des requêtes de manière intuitive via une interface graphique ou par la rédaction assistée d'une requête exploiter par des requêtes de requêtes, des requêtes sur tables et requêtes associées ou via une exportation de résultats ou de jeux de données pour une utilisation dans d'autres logiciels d'exploitation de données.
 
 Nous espérons qu'il intéressera les étudiants et les chercheurs en sciences-humaines n'ayant pas une grande habitude de l'utilisation de l'ordinateur et une très faible connaissance des principes des bases de données xml, des schémas et de leurs interrogations.
 
