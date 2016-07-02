@@ -3,7 +3,8 @@ Querying of XML Database
 
 Designers : 
 - Alain Dallo
-- Stéphane Lamassé 
+- Stéphane Lamassé
+
 Developer : 
 - Laurent Frobert
 
