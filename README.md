@@ -22,8 +22,8 @@ Elle doit permettre à  une communauté autour d'un projet d'interroger une stru
 Celle-ci est destiné plutôt au chercheur 
  Le public ciblé n'aura pas connaissance de la structure des données qu'il souhaite interroger au moment où il commence son exploration.
  
- 
-	Ce public ayant des modes de travail variés, le logiciel doit pouvoir être utilisé en situation de mobilité avec ou sans accès à internet sur une base de donnes à distance sur serveur web ou sur une copie en local d'une base ou d'une partie de celle-ci sur un serveur local.
+Ce public ayant des modes de travail variés, le logiciel doit pouvoir être utilisé en situation de mobilité avec ou sans accès à internet sur une base de donnes à distance sur serveur web ou sur une copie en local d'une base ou d'une partie de celle-ci sur un serveur local.
 
 
-#### Pour installer sa version il faut compiler avec ANT 
+#### Pour installer sa version 
+Il faut compiler avec ANT  qui utilise Build.xml 
