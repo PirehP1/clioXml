@@ -9,7 +9,8 @@ ClioXML est un logiciel développé avec le soutient du projet de recherche Stud
 Il s'agit donc essentiellement de manipuler des données dans un objectif de recherche afin de produire graphiques, tableaux. 
 	Celui-ci a donc quatre objectifs principaux :
 création, modification d'un schéma à la volée
-coder des éléments ou des attributs 
+1. coder des éléments ou des attributs
+
 explorer les données par une interface permettant à l'utilisateur de se représenter et de comprendre les jeux de données en explorant leurs natures, leurs relations et leurs distributions ainsi qu'en mettant en lumière les densités d'informations
 interroger les données en effectuant des requêtes de manière intuitive via une interface graphique ou par la rédaction assistée d'une requête exploiter par des requêtes de requêtes, des requêtes sur tables et requêtes associées ou via une exportation de résultats ou de jeux de données pour une utilisation dans d'autres logiciels d'exploitation de données.
 
@@ -26,4 +27,4 @@ Ce public ayant des modes de travail variés, le logiciel doit pouvoir être uti
 
 
 #### Pour installer sa version 
-Il faut compiler avec ANT  qui utilise Build.xml 
+Il faut compiler avec ANT  qui utilise Build.xml
