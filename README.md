@@ -15,10 +15,15 @@ interroger les données en effectuant des requêtes de manière intuitive via un
 
 Nous espérons qu'il intéressera les étudiants et les chercheurs en sciences-humaines n'ayant pas une grande habitude de l'utilisation de l'ordinateur et une très faible connaissance des principes des bases de données xml, des schémas et de leurs interrogations.
 
-## Le logiciel est développé en JAVA et il existe deux versions : 
-### serveur
+### Le logiciel est développé en JAVA et il existe deux versions : 
+#### serveur
 Elle doit permettre à  une communauté autour d'un projet d'interroger une structure commune pour construire son propre rapport aux données. Elle peut-être utilisé comme une interface pédagogique, ou comme un service.  Ainsi nous l'utilisons, à Paris 1, pour permettre à nos étudiants d'interroger leur données sans aucune installation de leur coté. 
-### locale
+#### locale
 Celle-ci est destiné plutôt au chercheur 
  Le public ciblé n'aura pas connaissance de la structure des données qu'il souhaite interroger au moment où il commence son exploration.
+ 
+ 
 	Ce public ayant des modes de travail variés, le logiciel doit pouvoir être utilisé en situation de mobilité avec ou sans accès à internet sur une base de donnes à distance sur serveur web ou sur une copie en local d'une base ou d'une partie de celle-ci sur un serveur local.
+
+
+#### Pour installer sa version il faut compiler avec ANT 
