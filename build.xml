@@ -1,55 +1,36 @@
-<project name="clioxml" default="all" basedir=".">
-
-	<property name="bin.dir" location="${basedir}/bin"/>
-	<property name="src.dir" location="${basedir}/src"/>
-	<property name="staging.dir" location="${basedir}/staging"/>
-  	<property name="webapp.dir" location="${basedir}/webapp6"/>
-	<property name="build.dir" location="${basedir}/build"/>
-	<property name="libs.dir" location="${basedir}/libs"/>
-	<property name="resources.dir" location="${basedir}/resources"/>
-
-	<path id="classpath">
-        <fileset dir="${libs.dir}" includes="**/*.jar"/>
-    </path>
-
-	<target name="clean">
-        <delete dir="${bin.dir}"/>
-		<delete dir="${build.dir}"/>
-    </target>
-
-    <target name="compile">
-        <mkdir dir="${bin.dir}"/>
-        <javac srcdir="${src.dir}" destdir="${bin.dir}" encoding="utf-8" classpathref="classpath"/>
-    </target>
+<project name="clioxml" default="war" basedir=".">
 	
-<target name="all" depends="clean,compile">
-  
-	<mkdir dir="${build.dir}"/>
+<target name="war" description="--> Creates self-executing war">
+  <property name="staging.dir" location="${basedir}/staging"/>
+  <property name="webapp.dir" location="${basedir}/webapp6"/>
+
   <mkdir dir="${staging.dir}"/>
   
-
-  <copy todir="${build.dir}">
-    <fileset dir="${bin.dir}" includes="**/*"/>
+  <copy todir="tmp">
+    <fileset dir="bin" includes="**/*"/>
   </copy>
   
-  <copy todir="${build.dir}/libs">
-    <fileset dir="${libs.dir}" includes="**/*"/>
-  </copy>
-
-  <copy todir="${build.dir}">
-    <fileset dir="${resources.dir}" includes="**/*"/>
-  </copy>
-
-	<chmod file="${build.dir}/launch.sh" perm="ugo+rx"/>
-	<chmod file="${build.dir}/launch-server.sh" perm="ugo+rx"/>
-
+  <!-- assumes you have all of your war content (excluding classes and libraries) already structured in a directory called src/webapp -->
+  <!-- e.g. -->
+  <!-- src/webapp/index.html -->
+  <!-- src/webapp/WEB-INF/web.xml -->
+  <!-- src/webapp/WEB-INF/classes/my.properties -->
+  <!-- etc ... -->
   <copy todir="${staging.dir}">
     <fileset dir="${webapp.dir}" includes="**/*"/>
   </copy>
 	
-  <war destfile="${build.dir}/clioxml.war" webxml="${webapp.dir}/WEB-INF/web.xml"> <!-- war -->
+		
+
+  
+	
+  <war destfile="tmp/clioxml.war" webxml="${webapp.dir}/WEB-INF/web.xml"> <!-- war -->
   	
-    <fileset dir="${staging.dir}" includes="**/*"/>   
+    <fileset dir="${staging.dir}" includes="**/*"/>
+    <!--
+    <classes dir="bin"/> 
+   <lib dir="libs"/>
+   -->
   </war>
 
   <delete dir="${staging.dir}"/>
