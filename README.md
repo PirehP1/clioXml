@@ -36,7 +36,7 @@ Celle-ci est destiné plutôt au chercheur
 $ ant
 ```
 * un répertoire build est crée 
-* dans ce répertoire vous pouvez lancer :** launch.sh**
+* dans ce répertoire vous pouvez lancer : **launch.sh**
 ```sh
 $ ./launch.sh
 ```
