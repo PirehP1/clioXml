@@ -29,6 +29,9 @@ Celle-ci est destiné plutôt au chercheur
 
 
 ### Installation
+
+
+#### Linux et MacOs
 * Après avoir téléchargé le paquet 
 * Il faut compiler avec ANT (version jdk 1.8)  qui utilise Build.xml 
 * Sous Linux, ou MacOs dans une session 
