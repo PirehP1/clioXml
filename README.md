@@ -31,13 +31,13 @@ Celle-ci est destiné plutôt au chercheur
 ### Installation
 * Après avoir téléchargé le paquet 
 * Il faut compiler avec ANT (version jdk 1.8)  qui utilise Build.xml 
-* Sous Linux, ou MacOs
+* Sous Linux, ou MacOs dans une session 
 ```sh
 $ ant
 ```
 * un répertoire build est crée 
 * dans ce répertoire vous pouvez lancer : launch.sh
-* ```sh
+```sh
 $ ./launch.sh
 ```
 
