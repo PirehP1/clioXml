@@ -19,7 +19,7 @@ Il s'agit donc essentiellement de manipuler des données dans un objectif de rec
 * 
 Nous espérons qu'il intéressera les étudiants et les chercheurs en sciences-humaines n'ayant pas une grande habitude de l'utilisation de l'ordinateur et une très faible connaissance des principes des bases de données xml, des schémas et de leurs interrogations.
 
-### Le logiciel est développé en JAVA et il existe deux versions : 
+### Le logiciel est développé en JAVA 
 #### serveur
 Elle doit permettre à  une communauté autour d'un projet d'interroger une structure commune pour construire son propre rapport aux données. Elle peut-être utilisé comme une interface pédagogique, ou comme un service.  Ainsi nous l'utilisons, à Paris 1, pour permettre à nos étudiants d'interroger leur données sans aucune installation de leur coté. 
 #### locale
