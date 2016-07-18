@@ -28,5 +28,16 @@ Celle-ci est destiné plutôt au chercheur
 * Ce public ayant des modes de travail variés, le logiciel doit pouvoir être utilisé en situation de mobilité avec ou sans accès à internet sur une base de donnes à distance sur serveur web ou sur une copie en local d'une base ou d'une partie de celle-ci sur un serveur local.
 
 
-#### Pour installer sa version 
-Il faut compiler avec ANT  qui utilise Build.xml
+### Installation
+* Après avoir téléchargé le paquet 
+* Il faut compiler avec ANT (version jdk 1.8)  qui utilise Build.xml 
+* Sous Linux, ou MacOs
+```sh
+$ ant
+```
+* un répertoire build est crée 
+* dans ce répertoire vous pouvez lancer : launch.sh
+* ```sh
+$ ./launch.sh
+```
+
