@@ -54,7 +54,7 @@ public class UploadDocumentServlet extends HttpServlet {
         //File tempDir = (File)getServletContext().getAttribute("javax.servlet.context.tempdir");
         //String FILE_NAME = tempDir.getAbsolutePath()+File.separator + "toto.zip";
 		String source_file_name = req.getHeader("File-Name");
-		//System.out.println("fichier downloadé : "+source_file_name); // pour voir le suffixe (.zip ou xml)
+		
         File targetFile = File.createTempFile("temp-file-name", ".tmp"); 
         String FILE_NAME = targetFile.getAbsolutePath();
         //File targetFile = new File(FILE_NAME) ;

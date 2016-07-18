@@ -369,7 +369,7 @@ public class SchemaGenerator {
 		} else if (nbText == 1 && nbAttr > 0 && nbChild == 1) {
 			SchemaText t = (SchemaText)element.childs.get(0);
 			
-			//e.setAttribute("nillable", "true"); // TODO : seulement si nous avons déterminer qu'un noeud pouvait ne pas avoir de valeur
+			//e.setAttribute("nillable", "true"); // TODO : seulement si nous avons dÃ©terminer qu'un noeud pouvait ne pas avoir de valeur
 			Element complexType = doc.createElementNS("http://www.w3.org/2001/XMLSchema","xs:complexType");
 			e.appendChild(complexType);
 			Element simpleContent = doc.createElementNS("http://www.w3.org/2001/XMLSchema","xs:simpleContent");

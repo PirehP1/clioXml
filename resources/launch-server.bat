@@ -1,0 +1,5 @@
+rem java -version:"1.7.0_60" -Dorg.basex.path=. -cp .;libs\commons-math3-3.3.jar;libs\sqlite-jdbc-3.8.5-pre1.jar;libs\javax.websocket-api-1.1.jar;libs\servlet-api-3.1.jar;libs\jetty-all-9.2.1.v20140609.jar;libs\BaseX79.jar;libs/xbean.jar;libs\jackson-annotations-2.4.1.jar;libs\jackson-core-2.4.1.jar;libs\jackson-databind-2.4.1.jar;libs\jackson-dataformat-xml-2.4.1.jar;libs\jackson-module-jaxb-annotations-2.4.1.jar;libs\javax.json-api-1.0.jar;libs\stax2-api-3.1.1.jar clioxml.Main
+rem 
+rem -Dclioxml_mode=server
+java  -Dclioxml_mode=server  -Dorg.basex.path=. -cp .;libs\jetty-proxy-9.2.1.v20140609.jar;libs\commons-lang3-3.3.2.jar;libs\commons-io-2.4.jar;libs\commons-csv-1.0.jar;libs\commons-math3-3.3.jar;libs\sqlite-jdbc-3.8.5-pre1.jar;libs\javax.websocket-api-1.1.jar;libs\servlet-api-3.1.jar;libs\jetty-all-9.2.1.v20140609.jar;libs\BaseX79.jar;libs/xbean.jar;libs\jackson-annotations-2.4.1.jar;libs\jackson-core-2.4.1.jar;libs\jackson-databind-2.4.1.jar;libs\jackson-dataformat-xml-2.4.1.jar;libs\jackson-module-jaxb-annotations-2.4.1.jar;libs\javax.json-api-1.0.jar;libs\stax2-api-3.1.1.jar clioxml.Main
+

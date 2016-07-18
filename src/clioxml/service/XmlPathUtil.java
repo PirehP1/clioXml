@@ -120,7 +120,7 @@ public class XmlPathUtil {
 		}
 		
 		int nb2 = refNodeSplited.size();
-		/* avec cela : si le refNodeSplited possède un attribute en fin alors cela ne fonctionne pas bien : il manque un ..
+		/* avec cela : si le refNodeSplited possÃ¨de un attribute en fin alors cela ne fonctionne pas bien : il manque un ..
 		if (refNodeSplited.size()>0 && refNodeSplited.get(refNodeSplited.size()-1).indexOf("@")!=-1) {
 			nb2 = nb2 -1;
 		}

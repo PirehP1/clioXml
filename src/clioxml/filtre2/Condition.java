@@ -31,7 +31,7 @@ public class Condition {
 	}
 	
 	@JsonIgnore
-	public static String getXQuery(String operatorId,String val1,String val2,String val3) { // val1 et val2 peuvent être data() ...
+	public static String getXQuery(String operatorId,String val1,String val2,String val3) { // val1 et val2 peuvent Ãªtre data() ...
 		StringBuffer result=new StringBuffer();
 		if ("eq".equals(operatorId)) {
 			result.append(val1).append(" = ").append("data(<a><![CDATA[").append(val2).append("]]></a>)");

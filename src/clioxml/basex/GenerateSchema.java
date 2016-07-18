@@ -22,7 +22,7 @@ import org.basex.server.ClientQuery;
 import org.basex.server.ClientSession;
 
 
-// d'après le code org.apache.xmlbeans.impl.inst2xsd.Inst2Xsd
+// d'aprÃ¨s le code org.apache.xmlbeans.impl.inst2xsd.Inst2Xsd
 public class GenerateSchema implements Runnable
 {
 	public static void generateSchemaStart(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
