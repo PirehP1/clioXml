@@ -230,6 +230,8 @@ public class CommandsServlet extends HttpServlet {
 			updateFiltre(req,resp);
 		} else if ("createFiltre".equals(cmd)) {
 			createFiltre(req,resp);
+		} else if ("exportFicheFullTextTreemap".equals(cmd)) {
+			exportFicheFullTextTreemap(req,resp);
 		} else {
 			commandUnkwnown(req,resp);
 		}
@@ -2128,6 +2130,103 @@ public class CommandsServlet extends HttpServlet {
 	    h.put("total",totalCount);
 		out.println(mapper.writeValueAsString(h));
 	}
+	
+	public void exportFicheFullTextTreemap(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		HttpSession session = req.getSession(false);
+		User user = (User)session.getAttribute("user");
+		Project p = (Project)session.getAttribute("currentProject");
+		
+		String docuri = req.getParameter("docuri");
+		String refnode = req.getParameter("refnode");
+		String searchTerm = req.getParameter("search");
+		String format = req.getParameter("format"); // xml ou texte
+		if (StringUtils.isEmpty(format)) {
+			format = "xml";
+		}
+		
+		String xquery = XQueryUtil.exportFicheConstructTreemapQuery(docuri,refnode,searchTerm);
+			
+			
+		
+		
+		
+		
+		GenericServer server = p.connection.newBackend();
+		try {
+			
+			
+			server.openDatabase();
+			
+			server.prepareXQuery(xquery);
+			
+			resp.setContentType("application/zip");  
+	        //response.setContentLength(LENGTH_OF_ZIPDATA);
+			String filename = "fiche-fulltext.zip";
+	        resp.setHeader("Content-Disposition","attachment;filename=\"" + filename + "\"");  
+			ServletOutputStream out = resp.getOutputStream();
+			ZipOutputStream zout=new ZipOutputStream(out);
+			
+			String text_xslt= null;
+			if ("texte".equals(format)) {
+				StringBuffer sbu = new StringBuffer("http://");
+				sbu.append(req.getServerName()).append(":").append(req.getServerPort()).append("/xml-to-text2.xsl");			
+				InputStream resourceContent = new URL(sbu.toString()).openStream();			
+				StringWriter writer = new StringWriter();
+				IOUtils.copy(resourceContent, writer, "UTF-8");		
+				text_xslt = writer.toString();
+			}
+			
+			int indexFiche=0;
+		    while(server.hasMore()) {
+		    	indexFiche++;
+		    	try {
+			      //String documentURI = server.next();			      
+			      String documentString = server.next();
+			      
+			      //String[] d = documentURI.split("/");
+			      
+			      StringBuffer sb = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+			      sb.append(documentString);
+			      
+			      String document = null;
+			      String document_filename = null;
+			      
+			      if ("texte".equals(format)) {
+			    	  try {
+			    		  document = Service.transformXML(sb.toString(),text_xslt);
+			    	  } catch (TransformerException te) {
+			    		  te.printStackTrace();
+			    		  continue;
+			    	  }
+			    	  
+			    	  document_filename = "fiche_"+indexFiche+".txt";
+			      } else {
+			    	  document_filename = "fiche_"+indexFiche+".xml";
+			    	  document = sb.toString();
+			      }
+			      
+			      zout.putNextEntry(new ZipEntry(document_filename));
+			      byte[] b = document.getBytes("UTF8");
+				  zout.write(b, 0, b.length);
+				  zout.closeEntry();
+		    	} catch (ZipException e) {
+		    		e.printStackTrace();
+		    	}
+		    }
+		    
+		    //close the zip file
+		    zout.finish();
+		    //close the output 
+		    zout.close();
+			
+			
+		} finally {
+			server.closeDatabase();
+		}
+		
+	}
+	
 	public void getFullText(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		HttpSession session = req.getSession(false);

@@ -734,7 +734,7 @@ Ext.define('Desktop.TableauBrutWindow', {
 										if (!currentCol.data.leaf && !currentCol.data.expanded) {
 											menuExpand.show();
 										} else {
-											menuExpand.hide();
+											menuExpand.hide();											
 										}
 										
 										if (!currentCol.data.leaf && currentCol.data.expanded) {
@@ -744,7 +744,13 @@ Ext.define('Desktop.TableauBrutWindow', {
 										}
 										
 										
-										
+										/*
+										 style:
+						                    {
+						                        backgroundColor: 'red',
+						                        color: 'white'
+						                    },
+										 */
 									});
 									/* fin ajout du menu */
 									
@@ -971,9 +977,12 @@ function flattenColumn(columns,col,originalCol) {
 	
 }
 
+
 function getColumn(col) {
-	var c = {text:col.data.name,getcol : function() {return col;}}; //, flex:1,autoSizeColumn : true
-	
+	var c = {text:col.data.name,getcol : function() {return col;}}; //, flex:1,autoSizeColumn : true componentCls:'leafcol-style', overCls:'leafcol-style ',baseCls: 'leafcol-style' cls:'leafcol-style',baseCls:'leafcol-style',overCls:'leafcol-style x-column-header-over'
+	if (col.data.leaf) {
+		c.componentCls = "leafcol-style";
+	}
 	if (col.data.expanded == true) {
 		var subcolumns = [];
 		for (var i=0;i<col.childNodes.length;i++) {

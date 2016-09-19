@@ -836,6 +836,29 @@ public class XQueryUtil {
 		input.append("}</result>");
 		return input.toString();
 	}
+	
+	public static String exportFicheConstructTreemapQuery(String docuri,String refnode,String searchTerm) {
+		StringBuffer input = new StringBuffer();
+		
+		input.append("let $last_collection := for $d in collection() return $d \n");
+		input.append("let $x:= <a><![CDATA[").append(searchTerm).append("]]></a>\n"); // petrus
+		if (StringUtils.isNotEmpty(docuri)) {
+			input.append("let $last_collection := for $d in $last_collection where matches(document-uri($d), '").append(docuri).append("') return $d "); // /*
+		}
+		  
+		input.append("let  $elems := for $d in $last_collection").append(refnode).append("/* "); ///Q{}prosop[1]/Q{}person[1]
+		input.append("let $c := count($d/descendant-or-self::*[text() contains text {data($x)} using wildcards]) \n");
+		input.append("where $c>0 \n");		
+				
+		
+		input.append("return  $d");
+		
+		input.append(" return $elems");
+		
+		
+		return input.toString();
+	}
+	
 	public static String executeRawXquery(User u,Project p,String xquery) throws IOException {
 		GenericServer server = p.connection.newBackend();
 		try {

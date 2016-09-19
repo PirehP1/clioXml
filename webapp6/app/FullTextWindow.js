@@ -156,7 +156,7 @@ Ext.define('Desktop.FullTextWindow', {
 						dockedItems: [{
 							xtype: 'toolbar',							
 							dock: 'top',
-							items: [{ xtype:'textfield',flex:1,fieldLabel:'chemin racine',itemId:"node_path",editable:false}]
+							items: [ { xtype:'textfield',flex:1,fieldLabel:'chemin racine',itemId:"node_path",editable:false}]
 						}]
 					}
 				],
@@ -179,6 +179,9 @@ Ext.define('Desktop.FullTextWindow', {
 						});
 				},
 				loadTreemap:function(docuri,refnode,searchTerm,addToHisto) {
+					this.docuri = docuri;
+					this.refnode = refnode;
+					
 					if (addToHisto) {
 						
 						theapp.addToHisto({from:"fulltext",type:"query",params:{searchTerm:searchTerm},timestamp:null}); //{from:"modalite",type:"query",params:{},timestamp:null}
@@ -420,6 +423,23 @@ Ext.define('Desktop.FullTextWindow', {
 													editorWindow.show();
 												});
 												
+												
+											}
+										}
+									},
+									{
+										text:"export",
+										listeners:{								
+											'click':function(button) {
+												var f = $("#formDownload");				
+												f.empty();
+												var w = this.up("window");
+												f.append($("<input>").attr("type", "hidden").attr("name", "cmd").val("exportFicheFullTextTreemap"));			
+												f.append($("<input>").attr("type", "hidden").attr("name", "docuri").val(w.docuri));
+												f.append($("<input>").attr("type", "hidden").attr("name", "refnode").val(w.refnode));
+												f.append($("<input>").attr("type", "hidden").attr("name", "search").val(w.searchTerm));
+												f.append($("<input>").attr("type", "hidden").attr("name", "format").val("xml"));
+												f.submit();
 												
 											}
 										}

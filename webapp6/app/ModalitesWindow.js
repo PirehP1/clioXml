@@ -162,6 +162,7 @@ Ext.define('Desktop.ModalitesWindow', {
 									return value+icon;
 								}
 							},
+							/*
 							{text: "ancienne(s) valeur(s)", flex: 1, 
 								renderer:function(value, d) {									
 									var ivalues = d.record.clioxml_initial_value();
@@ -175,6 +176,7 @@ Ext.define('Desktop.ModalitesWindow', {
 									
 								}
 							},
+							*/
 							{text: "recodage", flex: 1, dataIndex: 'clioxml_modify', sortable: true},
 							{text: "count", width: 180, dataIndex: 'count', sortable: true}
 						],
@@ -264,7 +266,13 @@ Ext.define('Desktop.ModalitesWindow', {
 									
 									
 									,notifyDrop:function(dd, e, node) {
-									
+										if (!node.records[0].data.leaf) {
+											Ext.Msg.alert('Attention', "Vous comptez l'agregat de noeuds");
+											
+											
+											node.records[0].expand();
+											return;
+										}
 										
 										var els = schemaNode_to_array(node);
 										

@@ -117,11 +117,11 @@ Ext.define('Desktop.CodageWindow2', {
 										//metadata.tdAttr  = 'data-qtip="'+removeQName(record.get("fullpath"))+'"';	
 									} else
 									if (record.get('type') == 'codageString') {
-										value = "Codage ("+record.get("count")+")";
+										value = "["+record.get("pmid")+"] Codage ("+record.get("count")+")";
 										//metadata.tdAttr  = 'data-qtip="nouvelle modalité"';		
 									} else
 									if (record.get('type') == 'codageNumeric') {
-										value = "Codage ("+record.get("count")+")";
+										value = "["+record.get("pmid")+"] Codage ("+record.get("count")+")";
 										//metadata.tdAttr  = 'data-qtip="nouvelle modalité"';		
 									} else	
 									if (record.get('type') == 'modalite') {
