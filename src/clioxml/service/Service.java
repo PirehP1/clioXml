@@ -671,10 +671,17 @@ public static HashMap getTableauBrutXml(Project p,List<String> colonnes,List<Has
 		try {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:" + DBPath);
-            statement = connection.prepareStatement("select * from projects where id = ? and owner=?");
-            statement.setLong(1, id);
-            statement.setLong(2, u.id);
-            
+            Boolean readwrite = (Boolean)u.credential.get("readwrite");
+            if (!readwrite) {
+            	Long default_project = User.getDefaultProject(u);
+            	statement = connection.prepareStatement("select * from projects where id = ?");
+	            statement.setLong(1, default_project);
+	            
+            } else {
+	            statement = connection.prepareStatement("select * from projects where id = ? and owner=?");
+	            statement.setLong(1, id);
+	            statement.setLong(2, u.id);
+            }
             
             ResultSet rs=  statement.executeQuery();
             rs.next();
@@ -1303,9 +1310,19 @@ public static HashMap getTableauBrutXml(Project p,List<String> colonnes,List<Has
 		try {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:" + DBPath);
-            statement = connection.prepareStatement("select * from schema where owner=? and project=?");
-            statement.setLong(1, u.id);
-            statement.setLong(2, p.id);
+            Boolean readwrite = (Boolean)u.credential.get("readwrite");
+            if (!readwrite) {
+            	Long default_project = User.getDefaultProject(u);
+            	statement = connection.prepareStatement("select * from schema where project=?");
+                statement.setLong(1, default_project);
+              
+	            
+            } else {
+            	statement = connection.prepareStatement("select * from schema where owner=? and project=?");
+                statement.setLong(1, u.id);
+                statement.setLong(2, p.id);
+            }
+            
             ArrayList<Schema> schemas = new ArrayList<Schema>();
             
             ResultSet rs=  statement.executeQuery();

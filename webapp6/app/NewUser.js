@@ -4,7 +4,7 @@ Ext.define('Desktop.NewUser',{
 	extend: 'Ext.window.Window',
 	updateUser:function () {
 		var user=this.user;
-		console.log("user=",user);
+		//console.log("user=",user);
 		this.setTitle('Modification utilisateur');
 		var f = this.down('form').getForm();
 		var rw = false;
@@ -12,6 +12,7 @@ Ext.define('Desktop.NewUser',{
 		if (user.data['credential']!=null) {
 			rw = user.data['credential'].readwrite;
 			projet_unique = user.data['credential'].projet_unique;
+			admin_projet = user.data['credential'].admin_projet;
 		}
 		
 		
@@ -20,7 +21,8 @@ Ext.define('Desktop.NewUser',{
 			nom: user.data['lastname'],
 			prenom: user.data['firstname'],
 			readwrite : rw,
-			projet:projet_unique
+			projet:projet_unique,
+			admin_projet:admin_projet
 			})
 			
 		/*
@@ -82,6 +84,11 @@ Ext.define('Desktop.NewUser',{
                 	 anchor: '90%',
                 	 fieldLabel:"Accès écriture",
                 	 name:"readwrite"},
+                 {xtype:'checkbox',                	                	                      	
+                    	 
+                    	 anchor: '90%',
+                    	 fieldLabel:"Admin Base",
+                    	 name:"admin_projet"},	 
             	 {
                 		 xtype:'combobox',                	                	                      	
                     	 required: false,
@@ -127,6 +134,7 @@ Ext.define('Desktop.NewUser',{
                  						var prenom = f.findField('prenom').getValue();
                  						var password = f.findField('password').getValue();
                  						var readwrite = f.findField('readwrite').getValue();
+                 						var admin_projet = f.findField('admin_projet').getValue();
                  						var projet_unique = f.findField('projet').getValue();
                  						
                  						//console.log(identifiant,nom,prenom,readwrite);
@@ -137,7 +145,7 @@ Ext.define('Desktop.NewUser',{
                  							command = "updateUser";
                  							id = button.up("window").user.data['id'];
                  						}
-                 						$.get("/service/commands?cmd="+command,{id:id,identifiant:identifiant,nom:nom,prenom:prenom,password:password,projet_unique:projet_unique,readwrite:readwrite},function(response) {
+                 						$.get("/service/commands?cmd="+command,{id:id,identifiant:identifiant,nom:nom,prenom:prenom,password:password,projet_unique:projet_unique,readwrite:readwrite,admin_projet:admin_projet},function(response) {
     										button.up("window").setLoading(false);
     										if ("error" in response && response.error != '') {											
     											alert("erreur",response.error);

@@ -81,6 +81,18 @@ Ext.define('Desktop.AdminUserManager', {
 	                       			    
 	                       			}
 	                       		},
+	                       		{text: "admin",xtype: 'checkcolumn',menuDisabled:true,
+	                       			   renderer:function(value, metaData, record, rowIndex, colIndex, store) {
+	                       				   if (store.getAt(rowIndex).data['credential']!=null && store.getAt(rowIndex).data['credential'].admin_projet) {
+	                       			        return '<input type="checkbox" checked="yes" disabled="true" />';
+	                       				   } else {
+	                       					 return '<input type="checkbox" disabled="true"/>'; 
+	                       				   }
+	                       			        
+	                       			    
+	                       			}
+	                       		},
+	                       		
 	                       		{text: "Base",
 	                       			   renderer:function(value, metaData, record, rowIndex, colIndex, store) {
 	                       				   var pu="";

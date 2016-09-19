@@ -60,18 +60,36 @@ Ext.define('Desktop.App', {
 
         this.callParent();
         var win = null;
+        var app=this;
+        
         //  afficher un autre ProjectModal pour les user loggé > 2
 		if (this.user!=null && this.user.id>2) {
-			win = Ext.create('Desktop.ProjectServerModal');
+			if (this.user.default_project!=null && this.user.default_project!=-1) {
+				
+				$.getJSON('/service/commands',{cmd:'openProject',id:this.user.default_project}, function(project) {	
+					Ext.getCmp("startWindow").setTitle("--");
+									
+									
+					var module = app.getModule('schema-win');
+					var schemaWindow = module.createWindow();												
+					schemaWindow.x = 0;
+					schemaWindow.y = 0;						
+					schemaWindow.show();						
+				});
+			} else {
+				win = Ext.create('Desktop.ProjectServerModal');
+			}
 		}	else {	
+			
 			win = Ext.create('Desktop.ProjectModal');
 			
 		}
 		
-		win.modal = true;
-		win.app = this;
-		
-		win.show();
+		if (win!=null) {
+			win.modal = true;
+			win.app = this;			
+			win.show();
+		}
     },
     isAdmin:false,
     histoStore:Ext.create('HistoStore'),
@@ -82,6 +100,7 @@ Ext.define('Desktop.App', {
     	//histo.push(req); // req : {from:"modalite",type:"query",params:{},timestamp:null}
     },
     getModules : function(){
+    	/*
     	var readwrite = false;
         if (this.user!=null && this.user.credential!=null) {
         	readwrite = this.user.credential.readwrite;
@@ -89,6 +108,12 @@ Ext.define('Desktop.App', {
         if (this.user == null) {
         	readwrite = true;
         }
+        */
+    	var readwrite = true;
+    	if (this.user!=null) {
+    		readwrite = this.user.credential.readwrite;
+    	} 
+    	
         var mods=
         [
             
@@ -100,16 +125,19 @@ Ext.define('Desktop.App', {
 			new Desktop.CodageWindow2(),
 			new Desktop.ContingenceWindow(),
 			new Desktop.FiltreWindow2(),
-			new Desktop.FullTextWindow(),
-			new Desktop.HistoWindow()
+			new Desktop.FullTextWindow()
+			
 			
 			
 			//,new Desktop.EditorWindow()
            
         ];
         
-        if (readwrite) {
+        if (readwrite == false) {
+        } else {
         	mods.push(new Desktop.EtiquetageWindow());
+        	mods.push(new Desktop.HistoWindow());
+        	
         }
         return mods;
     },
@@ -228,9 +256,13 @@ Ext.define('Desktop.App', {
 		win.show();
     },
     onCloseProject: function () {
+    	var msg="";
+    	if (this.user.credential.readwrite==false) {
+    		msg="\n Vous allez perdre des données !";
+    	}
         Ext.MessageBox.show({
 				title: 'Fermeture du projet',
-				msg: 'Confirmez vous la fermeture du projet ',
+				msg: 'Confirmez vous la fermeture du projet ?'+msg,
 				buttons: Ext.MessageBox.OKCANCEL,
 				icon: Ext.MessageBox.WARNING,
 				fn: function(btn){

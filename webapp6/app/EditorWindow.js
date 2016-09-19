@@ -263,9 +263,6 @@ Ext.define('Desktop.EditorWindow', {
 										menu: {
 											xtype: 'menu',                          
 											items: [{
-													text: 'Menu One',
-													iconCls: 'edit'
-												}, {
 													text: 'Vue',
 													menu : [ 
 															{
@@ -296,12 +293,25 @@ Ext.define('Desktop.EditorWindow', {
 															}
 														]
 												}, {
-													text: 'Menu Three',
-													scale: 'small'
-												}, {
-													text: 'Menu Four',
-													scale: 'small'
-											}]                          
+													text: 'Export XML',
+													scale: 'small',
+													listeners: {
+														click: function(item){											    
+															
+															var f = $("#formDownload");				
+															f.empty();
+															
+															f.append($("<input>").attr("type", "hidden").attr("name", "cmd").val("downloadIndividuFromDistinctValues"));			
+															f.append($("<input>").attr("type", "hidden").attr("name", "path[]").val(ligne));
+															f.append($("<input>").attr("type", "hidden").attr("name", "path[]").val(colonne));
+															f.append($("<input>").attr("type", "hidden").attr("name", "path[]").val(value));
+															f.append($("<input>").attr("type", "hidden").attr("name", "format").val("xml"));
+															f.append($("<input>").attr("type", "hidden").attr("name", "confirmed").val(JSON.stringify(confirmedIndividu)));
+															f.append($("<input>").attr("type", "hidden").attr("name", "filtreId").val(current_filtreId));
+															f.submit();
+														}
+													}
+												}]                          
 										}
 									}
 									]

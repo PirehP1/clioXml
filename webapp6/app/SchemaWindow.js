@@ -314,7 +314,7 @@ Ext.define('Desktop.SchemaWindow', {
 
     createWindow : function(){
         var desktop = this.app.getDesktop();
-       
+        var app=  this.app;
            var win = desktop.createWindow({
                 //itemId: 'grid-win',
                 title:'Schéma',
@@ -328,16 +328,20 @@ Ext.define('Desktop.SchemaWindow', {
                 layout: 'fit',
 				listeners: {
 					afterrender:function() {
-						this.addTool({
-						  type:'gear',
-						  handler: function() {
+						if (app.user.credential.readwrite == false) {
 							
-							var w = Ext.create('Desktop.NewSchema',{});
-							w.schema_window = this;
-							w.show();
-						  },
-						  scope:this
-						});
+						} else {
+							this.addTool({
+							  type:'gear',
+							  handler: function() {
+								
+								var w = Ext.create('Desktop.NewSchema',{});
+								w.schema_window = this;
+								w.show();
+							  },
+							  scope:this
+							});
+						}
 					}
 				},
                 items: [

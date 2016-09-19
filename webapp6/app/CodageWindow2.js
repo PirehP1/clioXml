@@ -408,7 +408,8 @@ Ext.define('Desktop.CodageWindow2', {
 											 itemId:"chemin"
 										},
 										{
-										text: 'Actions',                      
+										text: 'Actions',
+										itemId:"theMenuAction",
 										menu: {
 											xtype: 'menu',                          
 											items: [{
@@ -772,6 +773,16 @@ Ext.define('Desktop.CodageWindow2', {
 								},
 								afterrender:function() {
 									this.load_codage();
+									
+									var tree = this.up("window").down("treepanel");
+									if (theapp.user.credential.readwrite==false) {
+										tree.setDisabled(true);
+									} 
+									var menuAction = this.up("window").down("#theMenuAction");
+									if (theapp.user.credential.readwrite == false) {
+										menuAction.setDisabled(true);
+									}
+									
 									/*
 									this.up("window").addTool({
 									  type:'refresh',

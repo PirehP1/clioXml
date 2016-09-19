@@ -34,6 +34,7 @@ Ext.application({
 				var win = Ext.create('Desktop.ProjectModal');
 				win.modal = true;
 				win.app = app;
+				app.user = response;
 				win.show();
 			}
 		});	

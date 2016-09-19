@@ -60,7 +60,11 @@ Ext.define('Desktop.FiltreWindow2', {
 				layout: 'fit',
 				app:theapp,		
 				listeners: {
-					afterrender:function() {						
+					afterrender:function() {		
+									var menuAction = this.down("#theMenuAction");
+									if (theapp.user.credential.readwrite == false) {
+										menuAction.setDisabled(true);
+									}
 									var combo = this.down("#choix_filtre");
 									var tree = this.down("treepanel");
 									combo.store.on('load',function(store, records, successful, eOpts) {
@@ -294,9 +298,11 @@ Ext.define('Desktop.FiltreWindow2', {
 							viewready: function (tree) {								
 								var view = tree.getView();			
 								var dd = view.findPlugin('treeviewdragdrop'); // http://docs.sencha.com/extjs/5.1/5.1.0-apidocs/#!/api/Ext.tree.ViewDropZone-method-onNodeEnter																		
-								
-								dd.dropZone.addToGroup( 'modaliteDrop' );
-														
+								if (theapp.user.credential.readwrite==false) {
+									tree.setDisabled(true);
+								} else {
+									dd.dropZone.addToGroup( 'modaliteDrop' );
+								}						
 								dd.dropZone.notifyOver = function( source, e, data ) {
 									
 									if (tree.getStore().getProxy().extraParams.filtreId == -1) {
@@ -437,10 +443,10 @@ Ext.define('Desktop.FiltreWindow2', {
 							//return "/Q{}prosopographie/Q{}personne"; // TODO
 						},
 						addNewCondition:function(source,sourceData,destinationRec) {
-							console.log("add new condition");
-							console.log("source.view = ",source.view); // permet de savoir si c'est une modalites ou un path
-							console.log("sourceData",sourceData);
-							console.log("destinationRec",destinationRec);
+							//console.log("add new condition");
+							//console.log("source.view = ",source.view); // permet de savoir si c'est une modalites ou un path
+							//console.log("sourceData",sourceData);
+							//console.log("destinationRec",destinationRec);
 							
 							if (destinationRec.get("type")!="constraint") {
 								return;
@@ -454,7 +460,7 @@ Ext.define('Desktop.FiltreWindow2', {
 							var p = this.findFiltrePath(destinationRec,parentPath);
 							
 							if (p==null) {
-								console.log("p is null");
+								//console.log("p is null");
 								// create a path element								
 								p = destinationRec.appendChild({type:"path",quantifier:"some",path:parentPath,children:[],checked:true,expanded:true});								
 							} else {
@@ -517,7 +523,8 @@ Ext.define('Desktop.FiltreWindow2', {
 						,{ //---- debut menu action
 										text: 'Actions',                      
 										menu: {
-											xtype: 'menu',                          
+											xtype: 'menu', 
+											itemId:"theMenuAction",
 											items: [{
 													text: 'nouveau filtre',
 													iconCls: 'edit',

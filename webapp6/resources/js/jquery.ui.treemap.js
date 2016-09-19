@@ -407,13 +407,15 @@ TreemapUtils.squarify = function(rect,vals) {
                 ctx.font = '0.625em Verdana, Geneva, sans-serif';
                 ctx.fillText(id,rect[0],rect[1]+10);
             },
-            innerNodeHeaderGradient: function(ctx,rect,rgb) {
+            innerNodeHeaderGradient: function(ctx,rect,rgb) { 
+            	
                 var gradient = ctx.createLinearGradient(rect[0],rect[1],rect[0],rect[1]+rect[3]);
                 gradient.addColorStop(0,"#ccc");
                 gradient.addColorStop(0.5,"#fff");
                 gradient.addColorStop(0.9,"#fff");
                 gradient.addColorStop(1,"#555");
                 return gradient;
+               
             },
             leafNodeBodyLabeller: function(ctx,rect,rgb,id) {
                 ctx.rect(rect[0],rect[1],rect[2],rect[3]);
@@ -426,7 +428,10 @@ TreemapUtils.squarify = function(rect,vals) {
                 ctx.font = '0.625em Verdana, Geneva, sans-serif';
                 ctx.fillText(id,rect[0],rect[1]+10);
             },
-            leafNodeBodyGradient: function(ctx,rect,rgb) {
+            leafNodeBodyGradient: function(ctx,rect,rgb) { // modif laurent
+            	//console.log("rgb=",rgb);
+            	return TreemapUtils.rgb2hex(rgb);
+            	/*
                 var r1 = Math.min(rect[2],rect[3])*0.1;
                 var r2 = Math.max(rect[2],rect[3]);
                 var x = rect[0]+rect[2]*0.5;
@@ -435,6 +440,7 @@ TreemapUtils.squarify = function(rect,vals) {
                 gradient.addColorStop(0,TreemapUtils.lighterColor(TreemapUtils.rgb2hex(rgb),0.2));
                 gradient.addColorStop(1,TreemapUtils.darkerColor(TreemapUtils.rgb2hex(rgb),0.2));
                 return gradient;
+                */
             },
             layoutMethod: TreemapUtils.squarify,
             sizeOption: 0, // index into size attribute of this.options.nodeData elements

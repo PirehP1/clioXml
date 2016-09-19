@@ -39,21 +39,57 @@ public class User {
 	}
 	
 	public static void main(String[] argv ) {
-		/*
-		User u = new User();
-		u.credential = "";
-		u.firstname="laurent";
-		u.lastname = "frobert";
-		u.email = "laurent.frobert@gmail.com";
 		
-		boolean b = addUser(u,"laurent");
-		System.out.println(u.id);
-		
-		User u2  = getUser("laurent.frobert@gmail.com","laurent");
-		System.out.println(u2.id);
-		*/
 	}
 	
+	public static Long getDefaultProject(User u) {
+		boolean readwrite = (boolean)u.credential.get("readwrite");
+		boolean admin_projet = (boolean)u.credential.get("admin_projet"); // en fait c'est l'admin de la base
+		Integer id_base = (Integer)u.credential.get("projet_unique"); 
+		Connection connection = null;
+		PreparedStatement statement = null;
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			
+			Class.forName("org.sqlite.JDBC");
+            connection = DriverManager.getConnection("jdbc:sqlite:" + Service.DBPath);
+           
+            
+			// get the admin of the database
+        	 statement = connection.prepareStatement("select p.id as pid,u.credential as cred from projects as p join users as u on p.owner = u.id where base_id=? ");
+             statement.setLong(1, id_base);
+		
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+            	Long pid = rs.getLong("pid");
+            	String c = rs.getString("cred");
+            	HashMap credential = mapper.readValue(c,new TypeReference<HashMap>() {});
+            	if ((boolean)credential.get("admin_projet")) {
+            		return pid;
+            	}
+            }
+            
+            
+        } catch (ClassNotFoundException notFoundException) {
+            notFoundException.printStackTrace();
+            System.out.println("Erreur de connexion");
+        } catch (SQLException sqlException) {
+            sqlException.printStackTrace();
+            System.out.println("Erreur de connexion");
+        } catch (Exception e) {
+        	
+        }
+        	finally {
+        
+        	try {
+        		connection.close();
+        	} catch (SQLException e) {
+        		e.printStackTrace();
+        	}
+        }
+		
+		return null;
+	}
 	public static boolean removeUser(Long id) {
 		if (id<3) { // forbid delete user 1 and 2 (admin and local)
 			return false;

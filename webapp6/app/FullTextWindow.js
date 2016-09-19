@@ -89,14 +89,21 @@ Ext.define('Desktop.FullTextWindow', {
 										this.title=removeQName(data.ids[0].substring(slash))+", "+data.nodes[0].nbresult+" résultat(s)";
 										
 									};
-								
-									$(treemap).treemap({																					
-										"labelsEnabled":false,										
-										"colorStops":[
+									/*
+									 "colorStops":[
 											{"val":0,  "color":"#00f"},
 											{"val":0.01,  "color":"#070"},																
 											{"val":1.0,  "color":"#f00"}
-										]									
+										]
+									 */
+									$(treemap).treemap({																					
+										"labelsEnabled":false,		
+										naColor: "#fff",
+										"colorOption":0	,
+										 "colorStops":[
+														{"val":0,  "color":"#fff"},																												
+														{"val":1.0,  "color":"#555"}
+													]
 									}).bind('treemapmousemove',mousemoveHandler)
 										.bind('treemapclick',mouseclickHandler);
 								

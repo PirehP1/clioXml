@@ -640,6 +640,8 @@ public class CommandsServlet extends HttpServlet {
 		String password = req.getParameter("password");
 		String readwrite = req.getParameter("readwrite");
 		String projet_unique = req.getParameter("projet_unique");
+		String admin_projet = req.getParameter("admin_projet");
+		
 		
 		ObjectMapper mapper = new ObjectMapper();
 		PrintWriter out = resp.getWriter();
@@ -662,16 +664,30 @@ public class CommandsServlet extends HttpServlet {
 			nu.firstname = prenom;
 			nu.lastname = nom;
 			HashMap cred = new HashMap();
+			if ("true".equals(admin_projet)) {
+				readwrite = "true";
+			}
 			cred.put("readwrite", ("true".equals(readwrite))?true:false);
+			cred.put("admin_projet", ("true".equals(admin_projet))?true:false);
 			Long pu = -1L;
 			try {
-				pu = Long.parseLong(projet_unique);
+				pu = Long.parseLong(projet_unique); // projet_unique = idbase
 			} catch (Exception ex) {
 				
 			}
 			cred.put("projet_unique", pu);
 			nu.credential = cred;
 			boolean r = User.addUser(nu,password);
+			if ("true".equals(admin_projet)) {
+				// ok now we add a new project for this Read only user
+				Project p = new Project();
+				p.name = "Default Project";
+				p.description = "";
+				
+				User newUser = User.getUser(identifiant, password);
+				Long projectID = Service.newProject(newUser, p,pu); // to get a projectID
+				
+			}
 			response.put("newUser",nu);
 		} catch (Exception e) {
 			response.put("error",e.getMessage());
@@ -753,6 +769,8 @@ public class CommandsServlet extends HttpServlet {
 		
 		Schema s = Service.getSchema(schema_id);
 		resp.setContentType("application/json");
+		Boolean readwrite = (Boolean)user.credential.get("readwrite");
+        
 		if (s==null) {
 			resp.setCharacterEncoding("utf8");
 			ObjectMapper mapper = new ObjectMapper();
@@ -761,7 +779,7 @@ public class CommandsServlet extends HttpServlet {
 			PrintWriter out = resp.getWriter();
 			out.println(mapper.writeValueAsString(response));
 		} 
-		else if (s.owner == user.id && s.project == p.id ) {
+		else if ((s.owner == user.id && s.project == p.id ) || (!readwrite && s.project == User.getDefaultProject(user))) {
 			String content = Service.getSchemaContent(s.id);
 			resp.setCharacterEncoding("utf8");
 			ObjectMapper mapper = new ObjectMapper();
@@ -1044,6 +1062,7 @@ public class CommandsServlet extends HttpServlet {
 			LocalUser user = new LocalUser();
 			session.setAttribute("user", user);
 			response = user.toHashMap();
+			response.put("default_project", -1L);
 		} else {
 			// not a local access
 			
@@ -1057,7 +1076,23 @@ public class CommandsServlet extends HttpServlet {
 				if (u!=null) {				
 					HttpSession session = req.getSession(true);
 					session.setAttribute("user", u);
-					response = u.toHashMap();
+					HashMap h = u.toHashMap();
+					if (u.credential!=null) {
+						Boolean readwrite = (Boolean)u.credential.get("readwrite");
+						Boolean admin_projet = (Boolean)u.credential.get("admin_projet");
+						if (readwrite == null) {
+							readwrite = true;
+						}
+						if (admin_projet == null) {
+							admin_projet = false;
+						}
+						if (!readwrite || admin_projet) {
+							// automatic login
+							Long defaultProjectID = User.getDefaultProject(u);
+							h.put("default_project", defaultProjectID);
+						}
+					}
+					response = h;
 				} else {
 					response = new HashMap();
 					response.put("error","invalid identification");
@@ -1893,6 +1928,7 @@ public class CommandsServlet extends HttpServlet {
 		Project p = (Project)session.getAttribute("currentProject");
 		
 		String[] paths = req.getParameterValues("path[]");
+		
 		String confirmed = req.getParameter("confirmed");
 		String format = req.getParameter("format");
 		
@@ -1928,7 +1964,9 @@ public class CommandsServlet extends HttpServlet {
 		xquery.append("for $x in distinct-values($p)\n");
 		xquery.append("return ($x,doc($x))");
 		*/
-		StringBuffer xquery = new StringBuffer(subxquery).append("return $root");
+		
+		StringBuffer xquery = new StringBuffer(subxquery).append("return $d \nfor $d in $last_collection return $d");
+		
 		
 		
 		GenericServer server = p.connection.newBackend();
@@ -2075,7 +2113,7 @@ public class CommandsServlet extends HttpServlet {
 	    	TreemapChild c1 = new TreemapChild();
 		    c1.id = row.col.get(0)+row.col.get(1); //XQueryUtil.getLastNodeWithQName(row.col.get(1));
 		    int nbresult = Integer.parseInt(row.col.get(2));
-		    c1.color.add(nbresult/maxCountD);
+		    c1.color.add(new Double(nbresult)/maxCountD);
 		    c1.size.add(Integer.parseInt(row.col.get(3))/totalSizeD);
 		    c1.nbresult =nbresult; 
 		    tr.children.add(c1);
@@ -2241,6 +2279,8 @@ public class CommandsServlet extends HttpServlet {
 		
 		out.println(mapper.writeValueAsString(h));
 	}
+	
+	
 	
 	public void getIndividu(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {

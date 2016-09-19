@@ -107,6 +107,7 @@ Ext.define('Desktop.ContingenceWindow', {
 					{
 						xtype:'panel',
 						itemId:'contingence_panel',
+						//html:'<div name="contingence" style="width:100%;height:100%;background-color:blue" ></div>',
 						html:'<svg width="100%" height="100%" ></svg>',
 						listeners:{
 							beforerender:function() {
@@ -141,6 +142,7 @@ Ext.define('Desktop.ContingenceWindow', {
 								//innerCt																
 								//console.log("le svg  :",$("#"+this.id).find("svg"));
 								$("#"+this.id).find("svg").attr("id",this.id+"-svg");
+								//$("#"+this.id).find("div[name='contingence']").attr("id",this.id+"-svg");
 								
 								
 					  
@@ -148,6 +150,12 @@ Ext.define('Desktop.ContingenceWindow', {
 							resize: function(){
 								var graph_id = this.id+"-svg";
 								resizeSVG(graph_id);
+								//resizeContingence(graph_id);
+								/*
+								setTimeout(function(){ 										
+									resizeContingence(graph_id);
+								}, 0.1);
+								*/
 							}
 						}
 					}
@@ -234,6 +242,7 @@ Ext.define('Desktop.ContingenceWindow', {
 							}
 							
 							contingence(panel_id+"-svg",result,updateConfirmed);
+							//contingenceTile(panel_id+"-svg",result,updateConfirmed,1,[]) ;
 						});
 					}
 				},
