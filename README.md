@@ -39,3 +39,12 @@ $ ant
 $ ./launch.sh
 ```
 * Vous pouvez accéder à ce logiciel en utilisant votre navigateur à l'adresse : **localhost:8090**. Evidemment le port peut-être changé 
+
+
+### Utilisation de la version local 
+
+#### Linux et MacOs 
+* Définir un nouveau projet, donnez lui le nom que vous souhaitez, puis entrer dans le projet 
+* Il faut alors :
+- importer votre fichier xml, qui doit être compressé (.zip)
+- créer/importer un schéma pour ce projet ```
