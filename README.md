@@ -42,7 +42,7 @@ $ ./launch.sh
 * Vous pouvez accéder à ce logiciel en utilisant votre navigateur à l'adresse : **localhost:8090**. Evidemment le port peut-être changé 
 
 ## Installation de ANT sur Mac OS X
-* Pour tester si ANT est installé, ouvrir l'application terminal est entrer
+* Pour tester si ANT est installé, ouvrir l'application Terminal et entrer
 ```
 ant
 ```
@@ -57,8 +57,8 @@ Si ant n'est pas installé, le Terminal affiche :
 -bash: ant: command not found
 ```
 
-* Sur http://ant.apache.org/bindownload.cgi, télécharger apache-ant-1.9.7-bin.tar.gz (le numéro de version peut changer)
-* Si ce n'est pas fait automatiquement, décompresser le fichier téléchargé en double-cliquant dessus. Vous obtenez un dossier intitulé apache-ant-1.9.7.
+* Sur http://ant.apache.org/bindownload.cgi, télécharger **apache-ant-1.9.7-bin.tar.gz** (le numéro de version peut changer)
+* Si ce n'est pas fait automatiquement, décompresser le fichier téléchargé en double-cliquant dessus. Vous obtenez un dossier intitulé **apache-ant-1.9.7**.
 * Renommer ce dossier en "ant", et déplacer le dans votre dossier utilisateur, celui portant votre nom.
 * Dans le Terminal, ouvrir le fichier .bash_profile avec la commande :
 ```
