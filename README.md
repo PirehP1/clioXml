@@ -41,6 +41,60 @@ $ ./launch.sh
 ```
 * Vous pouvez accéder à ce logiciel en utilisant votre navigateur à l'adresse : **localhost:8090**. Evidemment le port peut-être changé 
 
+## Installation de ANT sur Mac OS X
+* Pour tester si ANT est installé, ouvrir l'application terminal est entrer
+```
+ant
+```
+Si ant est installé, le Terminal affiche :
+```
+Buildfile: build.xml does not exist!
+Build failed
+```
+L'installation n'est pas nécessaire.
+Si ant n'est pas installé, le Terminal affiche :
+```
+-bash: ant: command not found
+```
+
+* Sur http://ant.apache.org/bindownload.cgi, télécharger apache-ant-1.9.7-bin.tar.gz (le numéro de version peut changer)
+* Si ce n'est pas fait automatiquement, décompresser le fichier téléchargé en double-cliquant dessus. Vous obtenez un dossier intitulé apache-ant-1.9.7.
+* Renommer ce dossier en "ant", et déplacer le dans votre dossier utilisateur, celui portant votre nom.
+* Dans le Terminal, ouvrir le fichier .bash_profile avec la commande :
+```
+open -e ~/.bash_profile
+```
+* Si ce fichier n'existe pas, le Terminal affiche :
+```
+The file /Users/NomUtilisateur/.bash_profile does not exist.
+```
+* Dans ce cas, créer un nouveau document avec TextEdit.
+* Choississer le format texte brut avec le menu "Format" > "Convertir au format Texte".
+* Copier les lignes suivantes :
+```
+ANT_HOME='~/ant'
+export PATH=${PATH}:$ANT_HOME/bin
+```
+* Enregistrer le fichier avec le nom et les réglages suivants :
+	* Utiliser comme nom ".bash_profile" (avec le point)
+	* Décocher "Utiliser «.txt» à défaut d'extension"
+	* TextEdit vous prévient que les noms commençant par un point sont réservés au système. Confirmez en cliquant sur "Utiliser «.»".
+
+* Si vous n'avez pas eu à créer le fichier .bash_profile, il s'est ouvert dans TextEdit. Rajouter à la fin du fichier les lignes suivantes :
+```
+ANT_HOME='~/ant'
+export PATH=${PATH}:$ANT_HOME/bin
+```
+* Enregistrer et fermer.
+* Pour vérifier que ant est bien installé, fermer le Terminal, relancer le, et taper la commande
+```
+ant
+```
+Si ant est installé, le Terminal affiche :
+```
+Buildfile: build.xml does not exist!
+Build failed
+```
 
 ### Utilisation de la version local 
 
