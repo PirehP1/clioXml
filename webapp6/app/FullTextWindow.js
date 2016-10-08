@@ -365,6 +365,10 @@ Ext.define('Desktop.FullTextWindow', {
 				},
 				listeners: {
 					afterrender:function() {	
+						if (theapp.user.credential.readwrite==false) {
+							var saveButton = this.down("#saveButton");
+							saveButton.setDisabled(true);
+						} 
 						/* todo : dans le change du search term
 						var me = this;
 						var start= 1;
@@ -428,21 +432,49 @@ Ext.define('Desktop.FullTextWindow', {
 										}
 									},
 									{
-										text:"export",
-										listeners:{								
-											'click':function(button) {
-												var f = $("#formDownload");				
-												f.empty();
-												var w = this.up("window");
-												f.append($("<input>").attr("type", "hidden").attr("name", "cmd").val("exportFicheFullTextTreemap"));			
-												f.append($("<input>").attr("type", "hidden").attr("name", "docuri").val(w.docuri));
-												f.append($("<input>").attr("type", "hidden").attr("name", "refnode").val(w.refnode));
-												f.append($("<input>").attr("type", "hidden").attr("name", "search").val(w.searchTerm));
-												f.append($("<input>").attr("type", "hidden").attr("name", "format").val("xml"));
-												f.submit();
-												
-											}
-										}
+										text: 'Action',                      
+										menu: {
+											xtype: 'menu',                          
+											items: [
+												{
+													text:"export",
+													listeners:{								
+														'click':function(button) {
+															var f = $("#formDownload");				
+															f.empty();
+															var w = button.up("window");
+															f.append($("<input>").attr("type", "hidden").attr("name", "cmd").val("exportFicheFullTextTreemap"));			
+															f.append($("<input>").attr("type", "hidden").attr("name", "docuri").val(w.docuri));
+															f.append($("<input>").attr("type", "hidden").attr("name", "refnode").val(w.refnode));
+															f.append($("<input>").attr("type", "hidden").attr("name", "search").val(w.searchTerm));
+															f.append($("<input>").attr("type", "hidden").attr("name", "format").val("xml"));
+															f.submit();
+															
+														}
+													}
+												},
+												{
+													text: 'Enregistrer',	
+													itemId:'saveButton',
+													listeners: {
+														click:function(button) {
+															Ext.Msg.prompt("Enregistrement", "Nom pour cette requête :", function(btnText, sInput){
+												                if(btnText === 'ok'){
+												                	var w = button.up("window");
+																	var params = {searchTerm:w.searchTerm};
+												                    
+												                    var url="/service/commands?cmd=saveQuery";
+																	$.post(url,{from:"fulltext",type:"query",name:sInput,params:JSON.stringify(params)},function(response) {
+																		console.log(response);
+																	});
+												                }
+												            }, this);
+																
+														}
+													}
+												} // bouton enregister
+												]//items
+											} // menu
 									}
 									/*
 									,

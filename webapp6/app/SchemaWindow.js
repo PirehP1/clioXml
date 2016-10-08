@@ -317,6 +317,7 @@ Ext.define('Desktop.SchemaWindow', {
         var app=  this.app;
            var win = desktop.createWindow({
                 //itemId: 'grid-win',
+        	    id:'theschema',
                 title:'Schéma',
                 width:$(window).width()*0.3,
 				y:0,

@@ -319,11 +319,11 @@ Ext.define('Desktop.TableauBrutWindow', {
 							{xtype:'textfield',flex:1,labelStyle: 'width:220px;white-space: nowrap;',fieldLabel:'Ajouter une colonne',itemId:"newCol",editable:false,emptyText:'coller un noeud xml'}
 							,
 							{
-								text: 'Export',                      
+								text: 'Action',                      
 								menu: {
 									xtype: 'menu',                          
 									items: [{
-												text: 'CSV',					
+												text: 'export CSV',					
 												listeners: {
 													click:function(button) {
 														var f = $("#formDownload");				
@@ -346,8 +346,56 @@ Ext.define('Desktop.TableauBrutWindow', {
 													}
 												}
 											},
+											
 											{
-												text: 'textometrie',					
+												text: 'Enregistrer',
+												itemId:'saveButton',
+												listeners: {
+													click:function(button) {
+														Ext.Msg.prompt("Enregistrement", "Nom pour cette requête :", function(btnText, sInput){
+											                if(btnText === 'ok'){
+											                    //console.log("name of query : ",sInput);
+											                   
+											                    var tableau_brut = button.up('window').down("grid");
+																var cols=[];
+																var subcols=[];	
+																indexCol=1;											
+																for (var i=0;i<tableau_brut.clioxml_columns.length;i++) {
+																	cols.push(getFullPathNS_from_array(schemaNode_to_array2(tableau_brut.clioxml_columns[i].originalNode))); 
+																	//subcols.push(getColumn(tableau_brut.clioxml_columns[i].cloneNode));
+																}
+																	
+																var combo = button.up("window").down("#choix_filtre");
+																var current_filtreId = combo.getValue();
+																
+																var filtreName = "";
+																if (current_filtreId!=-1) {
+																	filtreName = combo.getStore().findRecord('id',current_filtreId).data.name;
+																}
+																	
+																var params = {colonnes:cols,filtreId:current_filtreId,filtreName:filtreName}; //subcols:subcols
+											                    
+											                    var url="/service/commands?cmd=saveQuery";
+																$.post(url,{from:"tableau brut",type:"query",name:sInput,params:JSON.stringify(params)},function(response) {
+																	console.log(response);
+																});
+											                }
+											            }, this);
+														/*
+														var f = $("#formDownload");				
+														f.empty();														
+																
+														f.append($("<input>").attr("type", "hidden").attr("name", "cmd").val("downloadTableauBrut"));			
+														f.append($("<input>").attr("type", "hidden").attr("name", "colonnes").val(JSON.stringify(cols)));
+														f.append($("<input>").attr("type", "hidden").attr("name", "subcols").val(JSON.stringify(subcols)));
+														f.append($("<input>").attr("type", "hidden").attr("name", "filtreId").val(tableau_brut.current_filtreId));
+														f.submit();
+														*/	
+													}
+												}
+											},
+											{
+												text: 'export Textometrie',					
 												listeners: {
 													click:function(button) {
 														var tableau_brut = button.up('window').down("grid");
@@ -477,22 +525,88 @@ Ext.define('Desktop.TableauBrutWindow', {
 													console.log("onclick : elementStructure "+elementStructure.localName+" not implemented TODO");
 												}	
 						},
+						cloneParentNode:function(n) {
+							if( n == null) {
+								return null;
+							} else { 
+								/*
+								 var cs = [];
+								   if (n.childNodes!=null) {
+									   for (var i=0;i<n.childNodes.length;i++) {
+										   cs.push(this.cloneNode(n.childNodes[i]));
+									   }
+									}
+									*/
+								var data={leaf:n.data.leaf,expanded:n.data.expanded,name:n.data.name,type:n.data.type,schemaNode:Ext.clone(n.data.schemaNode)};
+							   return {data:data,childNodes:[],parentNode:this.cloneParentNode(n.parentNode)} ; /* ,childNodes:cs */
+							}
+						},
+						cloneNode:function(n) {
+							if( n === null) {
+								return null;
+							} else { 
+							   var cs = [];
+							   if (n.childNodes!=null) {
+								   for (var i=0;i<n.childNodes.length;i++) {
+									   var x = this.cloneNode(n.childNodes[i]);
+									   if (x!=null) {
+										   cs.push(x);
+									   }
+								   }
+								}
+							   if (cs.length == 0) {
+								   cs = null;
+							   }
+							   /*
+							   var s2 = null;
+							   if (n.parentNode!=null) {
+								   var s = JSON.stringify(JSON.decycle(n.parentNode));
+								   var s2 = JSON.parse(s);
+							   }
+							   */
+							   console.log("n.data.name=",n.data.name);
+							   var data={leaf:n.data.leaf,expanded:n.data.expanded,name:n.data.name,type:n.data.type,schemaNode:Ext.clone(n.data.schemaNode)};
+							   return {data:data,childNodes:cs,parentNode:this.cloneParentNode(n.parentNode)}; //Ext.clone(n.data) this.cloneNode(n.parentNode)
+							}
+						},
+						getQueryParams:function() {
+							var combo = this.up("window").down("#choix_filtre");
+							var current_filtreId = combo.getValue();
+							
+							var filtreName = "";
+							if (current_filtreId!=-1) {
+								filtreName = combo.getStore().findRecord('id',current_filtreId).data.name;
+							}
+							
+							var cc2 = $.extend(true, [], this.clioxml_columns);
+							/*
+							var cc=[];
+							for (var i=0;i<cc2.length;i++) {
+								var cc3=cc2[i];
+								var c = {};
+								//c.originalNode = {parentNode:this.cloneParentNode(cc3.originalNode),childNodes:cc3.originalNode.childNodes,data:cc3.originalNode.data};
+								//c.cloneNode = {parentNode:cc3.cloneNode.parentNode,childNodes:cc3.cloneNode.childNodes,data:cc3.cloneNode.data};
+								c.originalNode =  this.cloneNode(cc3.originalNode);
+								c.cloneNode = this.cloneNode(cc3.cloneNode);
+								cc.push(c);
+							}
+							console.log("azerty2",cc2);
+							console.log("azerty",cc);
+							
+							
+							//var boardJSON = JSON.stringify(JSON.decycle(cc2));
+							//var cc =  JSON.retrocycle($.parseJSON(boardJSON));
+							*/
+							return {clioxml_columns:cc2,filtreName:filtreName,filtreId:current_filtreId};
+						},
 						loadTableauBrut:function(addToHisto) {
 							var tableau_brut = this;
 							if (tableau_brut.clioxml_columns.length == 0) {
 								return;
 							}							
 							if (addToHisto) {
-								var combo = this.up("window").down("#choix_filtre");
-								var current_filtreId = combo.getValue();
-								
-								var filtreName = "";
-								if (current_filtreId!=-1) {
-									filtreName = combo.getStore().findRecord('id',current_filtreId).data.name;
-								}
-								
-								var cc = $.extend(true, [], this.clioxml_columns);
-								theapp.addToHisto({from:"tableau brut",type:"query",params:{clioxml_columns:cc,filtreName:filtreName,filtreId:current_filtreId},timestamp:null}); //{from:"modalite",type:"query",params:{},timestamp:null}
+								var params = this.getQueryParams();
+								theapp.addToHisto({from:"tableau brut",type:"query",params:params,timestamp:null}); //{from:"modalite",type:"query",params:{},timestamp:null}
 							}
 							this.getView().removeSelection();
 							tableau_brut.setLoading(true);
@@ -634,6 +748,11 @@ Ext.define('Desktop.TableauBrutWindow', {
 									});
 								},
 							afterrender:function(c) {
+									
+								if (theapp.user.credential.readwrite==false) {
+									var saveButton = this.up("window").down("#saveButton");
+									saveButton.setDisabled(true);
+								} 
 									var view = c.getView();
 									
 									/* gestion dd pour modif de modalite */
@@ -701,7 +820,9 @@ Ext.define('Desktop.TableauBrutWindow', {
 									menu.removeAll();
 									var menuExpand = menu.add({
 										text: 'expand',
-										handler: function(menuitem, e, opt) {											
+										handler: function(menuitem, e, opt) {
+											var col = menuitem.ownerCt.activeHeader.getcol();
+											console.log("col=",col);
 											c.expandColumn(menuitem.ownerCt.activeHeader.getcol());
 											c.loadTableauBrut(false);
 										}
@@ -760,7 +881,7 @@ Ext.define('Desktop.TableauBrutWindow', {
 										// must be same as for tree
 										 ddGroup:'t2div'
 										,notifyDrop:function(dd, e, node) {																					
-																					
+											//console.log("dropped node : ",node.records[0]);						
 											var els = schemaNode_to_array(node);
 											//var child = {nb:0,appendChild:function() {nb++}};
 											var current_node = node.records[0].clone(); // attention: c'est un clone donc son nom complet ne prend pas en compte les anciens parents parents

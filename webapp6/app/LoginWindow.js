@@ -10,7 +10,31 @@ Ext.define('Desktop.LoginWindow',{
 	//closeAction:'destroy',
 	closable: false,
 	title:'Login',
-	
+	login:function(login,password) {
+		this.setLoading(true);
+		
+		var me=this;
+		
+		$.get("/service/commands?cmd=login",{user:login,password:password},function(response) {
+			me.setLoading(false);
+			if ("error" in response && response.error != '') {											
+				//alert("mauvaise identification");
+				Ext.Msg.alert("Erreur",response.error);
+			} else {
+				var user = response;
+				me.close();
+				if (user.id == 2) { // admin
+					new Desktop.AdminApp();	
+					
+					
+				} else { // classic user
+					var app = new Desktop.App();
+					
+					app.user = user;
+				}
+			}
+		});	
+	},
 	
 						items:[{xtype:"form",
 						
@@ -35,7 +59,23 @@ Ext.define('Desktop.LoginWindow',{
 							],
 							
 							 buttons: [
-								
+								{
+									text:'Accès Invité',
+									itemId:"guestButton",
+									disabled:true,
+									listeners:{
+										beforerender:function(w) {
+											$.get("/service/commands?cmd=isGuestUserExists",{},function(response) {
+												if (response.isGuestUserExists) {
+													w.setDisabled(false);
+												}
+											});
+										}
+									},
+									handler: function(w,a,b,c) {
+										w.up("window").login("guest","guest");
+									}
+								},
 							 {
 								text: "s'identifier",
 								handler: function(w,a,b,c) {
@@ -44,8 +84,8 @@ Ext.define('Desktop.LoginWindow',{
 									
 									var login = f.findField('login').getValue();
 									var password = f.findField('password').getValue();
-									
-									
+									w.up("window").login(login,password);
+									/*
 									w.up("window").setLoading(true);
 									
 									var me=w;
@@ -60,17 +100,7 @@ Ext.define('Desktop.LoginWindow',{
 											if (user.id == 2) { // admin
 												new Desktop.AdminApp();	
 												
-												/*
-												me.up("window").close();
-												var win = Ext.create('Desktop.AdminDBManager');
 												
-												win.app = me.app;
-												win.show();
-												var win2 = Ext.create('Desktop.AdminUserManager');
-												
-												win2.app = me.app;
-												win2.show();
-												*/
 											} else { // classic user
 												var app = new Desktop.App();
 												console.log("logged user :",user);
@@ -78,6 +108,7 @@ Ext.define('Desktop.LoginWindow',{
 											}
 										}
 									});	
+									*/
 									//
 							}
 							}]

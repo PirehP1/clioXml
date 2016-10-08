@@ -49,6 +49,7 @@ Ext.define('Desktop.App', {
 		 ,'Desktop.EtiquetageWindow'
 		 ,'Desktop.XQueryEditorWindow'
 		 ,'Desktop.HistoWindow'
+		 ,'Desktop.SavedQueryWindow'
 		 ,'Desktop.ExportTextometrieModal'
         //,'Desktop.LoginWindow',
         //,'Desktop.AdminDBManager'
@@ -125,18 +126,21 @@ Ext.define('Desktop.App', {
 			new Desktop.CodageWindow2(),
 			new Desktop.ContingenceWindow(),
 			new Desktop.FiltreWindow2(),
-			new Desktop.FullTextWindow()
+			new Desktop.FullTextWindow(),
+			new Desktop.SavedQueryWindow()
 			
 			
 			
 			//,new Desktop.EditorWindow()
            
         ];
-        
-        if (readwrite == false) {
-        } else {
+        //console.log("readwrite=",readwrite);
+        //alert(readwrite);
+        if (readwrite == true) {
         	mods.push(new Desktop.EtiquetageWindow());
         	mods.push(new Desktop.HistoWindow());
+        } else {
+        	
         	
         }
         return mods;

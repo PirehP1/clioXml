@@ -88,6 +88,7 @@ Ext.define('Ext.ux.desktop.App', {
              {text: 'Historique', id:"historique",nomenu:true},
              {text: 'Etiquetage', id:"etiquetage",nomenu:true},
              {text: 'Codage', id:"codage",nomenu:true},
+             {text: 'Requêtes', id:"query",nomenu:true},
              {text: 'Administration', id:"admin",menu:[]}
              //{text: 'Autre', id:"default",menu:[]}
              
@@ -146,6 +147,9 @@ Ext.define('Ext.ux.desktop.App', {
         var admin_index = me.getSubmenu("admin");
         var hasAdmin = this.submenu[admin_index].menu.length>0;
         for (var i=0;i<this.submenu.length;i++) {
+        	if (this.submenu[i].nomenu == true && this.submenu[i].handler == null) {
+        		continue;
+        	}
         	if (hasAdmin && admin_index==i) { 
         		cfg.menu.push(this.submenu[i]);
         	}

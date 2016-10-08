@@ -71,12 +71,14 @@ import clioxml.model.LocalBaseXConnectionReadOnly;
 import clioxml.model.LocalUser;
 import clioxml.model.Project;
 import clioxml.model.ProjectModify;
+import clioxml.model.QueryModel;
 import clioxml.model.Schema;
 import clioxml.model.User;
 import clioxml.service.Codage;
 import clioxml.service.Contingence;
 import clioxml.service.Filtre;
 import clioxml.service.LigneColonne;
+import clioxml.service.Query;
 import clioxml.service.Service;
 import clioxml.service.XQueryUtil;
 import clioxml.xsd.SchemaValidate;
@@ -232,6 +234,12 @@ public class CommandsServlet extends HttpServlet {
 			createFiltre(req,resp);
 		} else if ("exportFicheFullTextTreemap".equals(cmd)) {
 			exportFicheFullTextTreemap(req,resp);
+		} else if ("isGuestUserExists".equals(cmd)) {
+			isGuestUserExists(req,resp);
+		} else if ("saveQuery".equals(cmd)) {
+			saveQuery(req,resp);
+		} else if ("listQueries".equals(cmd)) {
+			listQueries(req,resp);
 		} else {
 			commandUnkwnown(req,resp);
 		}
@@ -314,24 +322,26 @@ public class CommandsServlet extends HttpServlet {
 			throws ServletException, IOException {
 		HttpSession session = req.getSession(false);
 		User user = (User)session.getAttribute("user");
-		Project p = new Project();
-		p.name = req.getParameter("name");
-		p.description = req.getParameter("description");
-		String database = req.getParameter("database");
-		Long baseId = null;
 		Long projectID =  null;
-		try {
-			baseId = Long.parseLong(database);
-			projectID = Service.newProject(user, p,baseId); // to get a projectID
-		} catch (Exception e) {
+		if ((boolean)user.credential.get("readwrite")) {
+			Project p = new Project();
+			p.name = req.getParameter("name");
+			p.description = req.getParameter("description");
+			String database = req.getParameter("database");
+			Long baseId = null;
+			
+			try {
+				baseId = Long.parseLong(database);
+				projectID = Service.newProject(user, p,baseId); // to get a projectID
+			} catch (Exception e) {
+				
+			}
+			
+			
 			
 		}
-		
-		
 		HashMap response = new HashMap();
 		response.put("projectID",projectID);
-		
-		
 		ObjectMapper mapper = new ObjectMapper();
 		PrintWriter out = resp.getWriter();
 		out.println(mapper.writeValueAsString(response));
@@ -1091,11 +1101,15 @@ public class CommandsServlet extends HttpServlet {
 						if (!readwrite || admin_projet) {
 							// automatic login
 							Long defaultProjectID = User.getDefaultProject(u);
-							h.put("default_project", defaultProjectID);
+							if (defaultProjectID == null) {							
+								h.put("error","Aucun projet par défaut trouvé");
+							} else {
+								h.put("default_project", defaultProjectID);
+							}
 						}
 					}
 					response = h;
-				} else {
+				} else { // newProjectServer
 					response = new HashMap();
 					response.put("error","invalid identification");
 				}
@@ -3191,6 +3205,67 @@ public class CommandsServlet extends HttpServlet {
 		
 		
 	}
+	
+	public void isGuestUserExists(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		User u = User.getUser("guest", "guest");
+		HashMap response= new HashMap();
+		if (u!=null) {
+			response.put("isGuestUserExists", true);
+		} else {
+			response.put("isGuestUserExists", false);
+		}
+		resp.setContentType("application/json");
+		resp.setCharacterEncoding("utf8");
+		PrintWriter out = resp.getWriter();
+		
+		ObjectMapper mapper = new ObjectMapper();
+		out.println(mapper.writeValueAsString(response));
+	}
+	
+	
+	public void listQueries(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		HttpSession session = req.getSession(false);
+		User user = (User)session.getAttribute("user");
+		Project p = (Project)session.getAttribute("currentProject");
+		
+		List<QueryModel> queries= Query.list(user, p.id);
+		
+		
+		HashMap response= new HashMap();
+		response.put("queries", queries);
+		resp.setContentType("application/json");
+		resp.setCharacterEncoding("utf8");
+		PrintWriter out = resp.getWriter();
+		
+		ObjectMapper mapper = new ObjectMapper();
+		out.println(mapper.writeValueAsString(response));
+	}
+	
+	public void saveQuery(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		HttpSession session = req.getSession(false);
+		User user = (User)session.getAttribute("user");
+		Project p = (Project)session.getAttribute("currentProject");
+		
+		String from = req.getParameter("from");
+		String type = req.getParameter("type");
+		String name = req.getParameter("name");
+		String params = req.getParameter("params");
+		Long query_id = Query.save(user, p.id, from, type, name, params);
+		
+		
+		HashMap response= new HashMap();
+		response.put("query_id", query_id);
+		resp.setContentType("application/json");
+		resp.setCharacterEncoding("utf8");
+		PrintWriter out = resp.getWriter();
+		
+		ObjectMapper mapper = new ObjectMapper();
+		out.println(mapper.writeValueAsString(response));
+	}
+	
 	
 	public void updateFiltre(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {

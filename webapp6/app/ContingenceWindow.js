@@ -26,6 +26,7 @@ Ext.define('Desktop.ContingenceWindow', {
     createWindow : function(){
         var desktop = this.app.getDesktop();
 		var app = this.app;
+		var theapp = app;
            var win = desktop.createWindow({
                 itemId:'contingence-win',
                 title:'Tableau de contingence',
@@ -139,6 +140,10 @@ Ext.define('Desktop.ContingenceWindow', {
 									});
 								},
 							afterrender:function() {
+								if (theapp.user.credential.readwrite==false) {
+									var saveButton = this.up("window").down("#saveButton");
+									saveButton.setDisabled(true);
+								} 
 								//innerCt																
 								//console.log("le svg  :",$("#"+this.id).find("svg"));
 								$("#"+this.id).find("svg").attr("id",this.id+"-svg");
@@ -209,7 +214,7 @@ Ext.define('Desktop.ContingenceWindow', {
 							
 							var combo = this.down("#choix_filtre");
 							var current_filtreId = combo.getValue();
-							console.log("current_filtreId=",current_filtreId);
+							//console.log("current_filtreId=",current_filtreId);
 							var filtreName = "";
 							if (current_filtreId!=-1) {
 								filtreName = combo.getStore().findRecord('id',current_filtreId).data.name;
@@ -411,7 +416,57 @@ Ext.define('Desktop.ContingenceWindow', {
 															location.href="/service/commands?"+$.param( {cmd:'exportDistinctValues',path:[win.current_row_path,win.current_col_path,win.current_count_path],path_type:[win.current_row_path_type,win.current_col_path_type],order_by:win.order_by,count_in:win.count_in,filtreId:win.current_filtreId} );
 														}
 													}
-												}, {
+												},
+												{
+													text: 'enregistrer',	
+													itemId:'saveButton',
+													listeners: {
+														click:function(button) {
+															Ext.Msg.prompt("Enregistrement", "Nom pour cette requête :", function(btnText, sInput){
+												                if(btnText === 'ok'){
+												                    //console.log("name of query : ",sInput);
+												                   
+												                    
+																		
+																	
+																	var w = button.up("window");
+																	if (w.current_row_path!=null && w.current_col_path!=null && w.current_count_path!=null) {
+																		var combo = w.down("#choix_filtre");
+																		var current_filtreId = combo.getValue();
+																		//console.log("current_filtreId=",current_filtreId);
+																		var filtreName = "";
+																		if (current_filtreId!=-1) {
+																			filtreName = combo.getStore().findRecord('id',current_filtreId).data.name;
+																		}
+																		
+																		var params = {
+																								current_row_path:w.current_row_path
+																								,current_row_path_type:w.current_row_path_type
+																								,current_col_path:w.current_col_path
+																								,current_col_path_type:w.current_col_path_type
+																								,current_count_path:w.current_count_path
+																								,order_by:w.order_by
+																								,count_in:w.count_in
+																								,filtreId:w.current_filtreId
+																								,filtreName:filtreName
+																								
+																							};
+																							
+																		
+													                    
+													                    var url="/service/commands?cmd=saveQuery";
+																		$.post(url,{from:"contingence",type:"query",name:sInput,params:JSON.stringify(params)},function(response) {
+																			console.log(response);
+																		});
+																	}
+																	
+												                }
+												            }, this);
+															
+														}
+													}
+												},
+												{
 													text: 'effacer la sélection',
 													scale: 'small',
 													listeners: {

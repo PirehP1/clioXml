@@ -779,3 +779,84 @@ function xmlToString(xmlData) {
     }
     return xmlString;
 }   
+
+
+function getSchemaNodeFromPath(path) { // ex : /Q{}corpus/Q{}texte/Q{}auteur
+	var p = removeQName(path).split("/");
+	//console.log("p=",p);
+	if (p[0]=="") {
+		p.shift();
+	}
+	
+	var schemaWin = Ext.getCmp("theschema");
+	var store = schemaWin.down("treepanel").getStore();
+	
+	
+	//console.log("schemaWin=",store); // Ext.data.TreeStore
+	//console.log("root=",store.getRoot()) // data.name = "corpus", puis childNodes (si size = 0) alors faire un expand() si not leaf jusqu'a avoir l'élément voulu
+	
+	
+	var currentNode = store.getRoot();
+	if (currentNode.data.name != p[0]) {
+		return null;
+	}
+	
+	for (var i=1;i<p.length;i++) {
+		// search in childnode
+		if (!currentNode.hasChildNodes( )) {
+			currentNode.expand();
+		}
+		var foundChild = null;
+		for (var j=0;j<currentNode.childNodes.length;j++) {
+			//console.log(currentNode.childNodes[j].data);
+			if (p[i][0]=="@") {
+				if (currentNode.childNodes[j].data.schemaNode.localName  == "attribute" && ("@"+currentNode.childNodes[j].data.name) == p[i]) {
+					foundChild = currentNode.childNodes[j];
+					break;
+				}
+			} else {
+				if (currentNode.childNodes[j].data.name == p[i]) {
+					foundChild = currentNode.childNodes[j];
+					break;
+				}
+			}
+		}
+		
+		if (foundChild!=null) {
+			currentNode = foundChild;
+		} else {
+			return null; // one child not found
+		}
+		
+	}
+	
+	return currentNode;
+	//console.log("currentSchema=",currentSchema);
+	/*
+	var currentSchemaNode = null;
+	var rootElements = getSchemaRootElements(currentSchema);
+	for (var i=0;i<rootElements.length;i++) {
+		var el = rootElements[i];
+		var ns_element = get_ns_element_name(el); // {ns:ns,name:name}
+		
+		if (ns_element.name == p[0]) {
+			currentSchemaNode = {
+					"iconCls":"task-folder", // task-folder
+					"name":ns_element.name,
+					"ns":ns_element.ns,
+					"leaf":false,
+					expanded: false,
+					"description":"",
+					schemaNode:el,
+					children:[],
+					allowDrag:true
+				};
+			break;
+		}
+	}
+	*/
+	
+	
+}
+
+
