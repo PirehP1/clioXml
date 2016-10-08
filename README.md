@@ -105,4 +105,7 @@ Build failed
 	* créer/importer un schéma pour ce projet 
 	```
 	```
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8ffdee02624895e650e91d5fc81152748dc61a55
