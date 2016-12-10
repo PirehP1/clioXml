@@ -104,5 +104,3 @@ Build failed
 * Il faut alors :
 	* importer votre fichier xml, qui doit être compressé (.zip)
 	* créer/importer un schéma pour ce projet 
-	```
-	```
