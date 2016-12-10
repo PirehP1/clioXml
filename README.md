@@ -24,6 +24,8 @@ Celle-ci est plutôt destinée aux chercheurs
 * Le public ciblé n'aura pas forcément connaissance de la structure des données qu'il souhaite interroger au moment où il commence son exploration.
 * Ce public ayant des modes de travail variés, le logiciel peut être utilisé en situation de mobilité avec ou sans accès à internet sur une base de données à distance sur serveur web ou sur une copie en local d'une base ou d'une partie de celle-ci.
 
+![Capture d'écran de l'interface de clioXml]() 
+
 
 ## Installation
 
