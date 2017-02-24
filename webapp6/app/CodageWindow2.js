@@ -12,7 +12,7 @@ Ext.define('Desktop.CodageWindow2', {
         this.launcher = {
             text: 'Codage',
             iconCls:'icon-grid',
-            idmenu:"codage"
+            idmenu:"modifier"
         };
     },
 
@@ -50,7 +50,62 @@ Ext.define('Desktop.CodageWindow2', {
 							win.recordCodage = record;
 							win.show();
 							
-						}	,					
+						}	,	
+						codageToCorrection:function(recordCodage) {
+							
+							var type ="";
+							var fullpath="";
+							var pmid="";
+							if (recordCodage == null) {
+								type="all";										
+							} else if (recordCodage.get("type")=='variable') {
+								type = "variable";
+								fullpath = recordCodage.get("fullpath");
+								
+							} else if (recordCodage.get("type")=='codageString') {
+								type="codageString";
+								pmid=recordCodage.get("pmid");
+								
+							} else if (recordCodage.get("type")=='codageNumeric') {
+								type="codageNumeric";
+								pmid = recordCodage.get("pmid");
+								
+							} 
+							var url="/service/commands?cmd=codageToCorrection";
+							this.setLoading(true);
+							var me = this;
+							$.post(url,{type:type,fullpath:fullpath,pmid:pmid},function(response) {
+								me.setLoading(false);
+								
+								// TODO ;refresh corrections list if the window is open
+							   var desktop = theapp.getDesktop();
+							   var modwin=null;
+							   for (var i=0;i<desktop.windows.getCount();i++) {
+								   var win = desktop.windows.get(i);
+								   if (win.itemId=='corrections-win') {
+									  modwin = win;	
+									  break;
+								   }
+							   }
+							  
+							   if (modwin!=null) {
+								   
+								   setTimeout(function() {
+										modwin.refresh();
+									},100);
+									
+									
+							   } 
+							   if (response.result == "ko") {
+								   alert(response.result.erreur.join("\n"));
+							   } else {
+								   theapp.fireEvent("codageUpdated",this);
+							   }
+								   
+								  
+								
+							});
+						},
 						viewConfig: {	
 							copy:true,
 							listeners : {
@@ -311,6 +366,22 @@ Ext.define('Desktop.CodageWindow2', {
 										  icon: 'resources/images/edit-16.png',
 										  tooltip:"edition"
 									  },
+									  {
+										  getClass: function(v, metadata, r, rowIndex, colIndex, store) {
+											  // hide this action if row data flag indicates it is not deletable											  
+												if (r.get("type")=='modalite' || r.get("type")=='range') {
+													return "hiddenicon";
+												} else {
+												  return "x-myhidden-display";											  
+												}
+										  },
+										  handler: function(view, rowIndex, colIndex, item, e, record, row) {
+											  var me = this.up("treepanel")	;
+											  me.codageToCorrection(record);
+										  },
+										  icon: 'resources/images/default-group-checked.png',
+										  tooltip:"transformer en correction"
+									  },  
 									{
 										  getClass: function(v, metadata, r, rowIndex, colIndex, store) {
 											  // hide this action if row data flag indicates it is not deletable											  

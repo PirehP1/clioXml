@@ -10,9 +10,9 @@ Ext.define('Desktop.FullTextWindow', {
 
     init : function(){
         this.launcher = {
-            text: 'Fulltext',
+            text: 'Filtre plein texte',
             iconCls:'icon-grid',
-            idmenu:"filtre"
+            idmenu:"requete"
         };
     },
 
@@ -22,7 +22,7 @@ Ext.define('Desktop.FullTextWindow', {
         var theapp = this.app;
            var win = desktop.createWindow({
         	   itemId: 'fulltext-win',
-                title:'Fulltext',
+                title:'Filtre plein texte',
 				y:0,
 				
 				x:$(window).width()*0.3,

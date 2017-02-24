@@ -121,14 +121,17 @@ public class Codage {
 		String allCodages = Codage.getCodages(id);
 		ObjectMapper mapper = new ObjectMapper();
 		
-		TypeReference<ArrayList<Variable>> typeRef = new TypeReference<ArrayList<Variable>>() {};
-		ArrayList<Variable>  variables = null;                      
-		try {        
-			variables = mapper.readValue(allCodages, typeRef);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		ArrayList<Variable>  variables = null; 
 		
+		if (allCodages!=null && !"".equals(allCodages)) {
+			TypeReference<ArrayList<Variable>> typeRef = new TypeReference<ArrayList<Variable>>() {};
+			                     
+			try {        
+				variables = mapper.readValue(allCodages, typeRef);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 		
 		
 		
@@ -171,6 +174,7 @@ public class Codage {
 			var.children = new ArrayList<clioxml.codage.Codage>();
 			var.children.add(cod);
 			
+			//est-ce vraiment "codages" ou plutot variables ?
 			ce.codages = new ArrayList<Variable>();
 			ce.codages.add(var);
 		}

@@ -39,9 +39,9 @@ Ext.define('Desktop.FiltreWindow2', {
 
     init : function(){
         this.launcher = {
-            text: 'Filtre Avancés',
+            text: 'Filtre Avancé',
             iconCls:'icon-grid',
-            idmenu:"filtre"
+            idmenu:"requete"
         };
     },
 
@@ -49,7 +49,7 @@ Ext.define('Desktop.FiltreWindow2', {
         var desktop = this.app.getDesktop();
         var theapp = this.app;
            var win = desktop.createWindow({               
-                title:'Filtre',
+                title:'Filtre Avancé',
 				y:0,				
 				x:$(window).width()*0.7,
 				width: $(window).width()*0.3,

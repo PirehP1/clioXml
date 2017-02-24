@@ -17,7 +17,7 @@ Ext.define('Desktop.ContingenceWindow', {
 
     init : function(){
         this.launcher = {
-            text: 'Tableau de contingence',
+            text: 'Contingence',
             iconCls:'icon-grid',
             idmenu:"tableau"
         };

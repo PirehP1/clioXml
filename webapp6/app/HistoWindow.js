@@ -12,7 +12,7 @@ Ext.define('Desktop.HistoWindow', {
 
     init : function(){
         this.launcher = {
-            text: 'Histo Window',
+            text: 'Historique',
             iconCls:'icon-grid',
             idmenu:"historique"
         };
@@ -68,7 +68,8 @@ Ext.define('Desktop.HistoWindow', {
 									var data = d.record.data;
 									var res=[];
 									if (data.from=='modalite') {
-										res.push(removeQName(data.params.path));										
+										res.push(removeQName(data.params.ref_path));
+										res.push(removeQName(data.params.path));											
 									} else if (data.from=='fulltext') {
 										res.push(data.params.searchTerm);										
 									} else if (data.from=='contingence') {
@@ -114,7 +115,7 @@ Ext.define('Desktop.HistoWindow', {
 				   var modwin=null;
 				   for (var i=0;i<desktop.windows.getCount();i++) {
 					   var win = desktop.windows.get(i);
-					   if (win.itemId=='mod-win') {
+					   if (win.itemId=='mod-json-win') {
 						  modwin = win;	
 						  break;
 					   }
@@ -122,7 +123,7 @@ Ext.define('Desktop.HistoWindow', {
 				  
 				   if (modwin==null) {
 					   
-					   var module = new Desktop.ModalitesWindow();
+					   var module = new Desktop.ModalitesWindowJson();
 						module.app = theapp;															
 						modwin = module.createWindow();
 						modwin.show();

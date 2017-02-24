@@ -32,7 +32,7 @@ Ext.define('Desktop.App', {
 		'Desktop.ImportCodage',
 		 'Desktop.ProjectModal',
 		 'Desktop.SchemaWindow',
-		 'Desktop.ModalitesWindow',
+		 //'Desktop.ModalitesWindow',
 		 'Desktop.TableauBrutWindow',
 		 //'Desktop.CodageWindow',
 		  'Desktop.DownloadCodage',
@@ -50,7 +50,11 @@ Ext.define('Desktop.App', {
 		 ,'Desktop.XQueryEditorWindow'
 		 ,'Desktop.HistoWindow'
 		 ,'Desktop.SavedQueryWindow'
+		 ,'Desktop.CorrectionsWindow'
 		 ,'Desktop.ExportTextometrieModal'
+		 ,'Desktop.ModalitesWindowJson'
+		 ,'Desktop.ImportSchemaWindow'
+		 ,'Desktop.GenererSchemaWindow'
         //,'Desktop.LoginWindow',
         //,'Desktop.AdminDBManager'
     ],
@@ -120,15 +124,19 @@ Ext.define('Desktop.App', {
             
            // new Desktop.GridWindow(),
 			new Desktop.SchemaWindow(),
-			new Desktop.ModalitesWindow(),
+			new Desktop.GenererSchemaWindow(),
+			new Desktop.ImportSchemaWindow(),
+			
+			//new Desktop.ModalitesWindow(),
 			new Desktop.TableauBrutWindow(),
 			//new Desktop.CodageWindow(),
 			new Desktop.CodageWindow2(),
 			new Desktop.ContingenceWindow(),
 			new Desktop.FiltreWindow2(),
 			new Desktop.FullTextWindow(),
-			new Desktop.SavedQueryWindow()
 			
+			new Desktop.ModalitesWindowJson(),
+			new Desktop.SavedQueryWindow()
 			
 			
 			//,new Desktop.EditorWindow()
@@ -139,6 +147,7 @@ Ext.define('Desktop.App', {
         if (readwrite == true) {
         	mods.push(new Desktop.EtiquetageWindow());
         	mods.push(new Desktop.HistoWindow());
+        	mods.push(new Desktop.CorrectionsWindow());
         } else {
         	
         	
@@ -190,10 +199,10 @@ Ext.define('Desktop.App', {
 	            iconCls: 'user',
 	            height: 300,
 	            toolConfig: {
-	                width: 100,
+	                width: 150,
 	                items: [
 						{
-	                        text:'Import',
+	                        text:'Importer du XML',
 	                        iconCls:'settings',
 	                        handler: me.onImport,                        
 	                        scope: me

@@ -666,6 +666,179 @@ public class XQueryUtil {
 		
 	}
 	
+	public static String getListModalitesJson(User u,Project p,String ref_path,String path,Long filtreId,boolean executeXQuery,Integer start,Integer end,boolean download) throws IOException {
+		
+		String wherePart = null;
+        
+	      
+		ArrayList<Constraint> constraints = Filtre.getFiltreById(p.id, filtreId);
+			
+		
+		
+		
+		if (constraints!=null && constraints.size()>0 && filtreId!=-1) {
+			//String path__ = "/Q{}prosop/Q{}person/Q{}XX";
+			ArrayList<String> constraintsXpath = new ArrayList<String>();
+			for(Constraint c:constraints) {
+				String q = c.toXQuery(ref_path);
+				if (q!=null) {
+					constraintsXpath.add(q);
+				}
+			}
+			if (constraintsXpath.size()>0) {
+				wherePart = StringUtils.join(constraintsXpath," or ");
+			}
+			
+		} 
+		
+		
+		
+		if (wherePart == null) {
+			wherePart="";
+		} else {
+			wherePart = "where "+wherePart;
+		}
+		
+		
+		
+		ArrayList<String> refpathSplitted = XmlPathUtil.splitPath(ref_path);
+		ArrayList<String> pathSplitted = XmlPathUtil.splitPath(path);
+		
+		String relativePath = StringUtils.join(XmlPathUtil.getRelativePath(refpathSplitted, pathSplitted),"");
+		
+		
+		//String p1 = "/prosop/person";
+		//String p2 ="/geo-origin/birthplace/data/place";
+		
+		String p1 = ref_path;
+		String p2 = relativePath;
+		String p3 = null;
+		String p4 = null;
+		if (path.indexOf("@") == -1) {
+			p3 = "$occ//text()"; // ou data($occ)
+			p4="$occ/@clioxml:node__pmids"; // ou $occ/../@clioxml:field_pmids	
+		} else {
+			p3 = "data($occ)"; // ou data($occ)
+			p4="$occ/../@clioxml:field__pmids"; // ou $occ/../@clioxml:field_pmids
+		}
+		
+		Integer p5 = start;
+		Integer p6 = end;
+		
+		if (p5==null) {
+			p5 = 1;
+		}
+		if (p6 == null) {
+			p6 = 100;
+		}
+		
+		String notFound="";
+		String found="";
+		
+		if (!"".equals(wherePart)) {
+			notFound="let $count_node_not_found := \n"+ 
+				    "let $xx := for $d in $last_collection%1$s\n"+
+				    wherePart+" and $d[not(.%2$s)]\n"+
+				    "return $d\n"+
+				    "return count($xx)\n"; 
+			found="let $count_node_found := \n"+ 
+				    "let $xx := for $d in $last_collection%1$s\n"+
+				    wherePart+" and $d[.%2$s]\n"+
+				    "return $d\n"+
+				    "return count($xx)\n"; 
+			
+		} else {
+			notFound = "let $count_node_not_found := count($last_collection%1$s[not(.%2$s)]) \n";
+			found="let $count_node_found := count($last_collection%1$s[.%2$s])\n";
+		}
+		
+		
+		String query=
+		//"let $count_node_not_found := count($last_collection%1$s[not(.%2$s)]) \n"+
+		//"let $count_node_found := count($last_collection%1$s[.%2$s])\n"+
+		notFound+
+		found+
+		"let $allmods := \n"+
+		"for $d in $last_collection%1$s[.%2$s]\n"+
+		"%7$s \n"+
+		"for $occ in $d%2$s\n"+
+		"let $mod := string-join(%3$s) (: si attribute alors data($occ) :)\n"+
+		"let $pmids := tokenize(%4$s,'\\s') (: si attribute alors $occ/../@clioxml:field_pmids:)\n"+
+		"group by $mod \n"+
+		"let $c := count($d)\n"+
+
+		"order by $c descending\n"+
+
+		"return <_ type=\"object\"><modalite>{$mod}</modalite><count>{$c}</count><pm>{distinct-values($pmids)}</pm></_>\n";
+
+		
+		
+		if (download) {
+			query = query +
+					"let $res :=\n"+
+					" <json type=\"array\" >\n"+					
+					
+					"    \n"+
+					"    { \n"+
+					"        for $onemod in subsequence($allmods, %5$d, %6$d)\n"+
+					"        return $onemod\n"+
+					"    }\n"+
+					
+					"    </json>\n"+
+					"return json:serialize($res)\n" ;
+		} else {
+			
+			query = query + 
+					"let $res :=\n"+
+					" <json type=\"object\" >\n"+
+					" <counts type=\"object\">\n"+
+					"    <totaloccurence type=\"number\">{sum($allmods/count)}</totaloccurence>\n"+
+					"    <distinctmod type=\"number\">{count($allmods)}</distinctmod>\n"+
+					"    <fichenotfound type=\"number\">{data($count_node_not_found)}</fichenotfound>\n"+
+					"    <fichefound type=\"number\">{data($count_node_found)}</fichefound>\n"+
+					"</counts>\n"+
+					"    <modalites type=\"array\">\n"+
+					"    \n"+
+					"    { \n"+
+					"        for $onemod in subsequence($allmods, %5$d, %6$d)\n"+
+					"        return $onemod\n"+
+					"    }\n"+
+					"    </modalites>\n"+
+					"    </json>\n" +
+					"return json:serialize($res)\n" ;
+		}
+		
+		
+		
+		GenericServer server = p.connection.newBackend();
+		try {
+			server.openDatabase();
+			//System.out.println("currentModification="+p.currentModification);		
+			StringBuffer xquery = new StringBuffer("");
+			xquery.append("declare namespace json=\"http://basex.org/modules/json\";\n");
+			xquery.append("declare namespace clioxml=\"http://www.clioxml\";\n");
+
+			xquery.append("let $last_collection := for $d in collection() return $d \n");					
+			
+			xquery.append(p.currentModification).append(" \n");		
+			
+			xquery.append(String.format(query, p1,p2,p3,p4,p5,p6,wherePart));
+			
+			
+			//System.out.println(xquery.toString()); 
+			if (executeXQuery) {
+				return server.executeXQuery(xquery.toString());
+			} else {
+				return xquery.toString();
+			}
+			
+				    
+		} finally {
+			server.closeDatabase();
+		}
+		
+		
+	}
 	public static String getListModalites(User u,Project p,String path,Long filtreId,boolean executeXQuery) throws IOException {
 		
 		
@@ -701,7 +874,7 @@ public class XQueryUtil {
 		
 		StringBuffer query = new StringBuffer();
 		
-		query.append("for $d in $last_collection").append(path).append("\n");
+		query.append("for $d in $last_collection").append(XQueryUtil.removeQName(path)).append("\n");
 		if (wherePart!=null) {			
 			query.append("where ").append(wherePart).append(" \n");			
 		} 
@@ -709,25 +882,21 @@ public class XQueryUtil {
 		
 		
 		
-		//query.append(" for $d in $last_collection").append(elem).append("\n");
+		
 		if (attribute==null) {
-			/*
-			query.append("let $elem:= $d/text() \n"); // $d/text()
-			query.append("let $atLeastOneMod:= tokenize($elem/../@clioxml:node__pmids,'\\s') \n");
-			query.append("let $original_value:= data($elem/../@clioxml:node__oldvalue) \n");
-			*/
-			query.append("let $elem:= data($d) \n"); // $d/text()
+			
+			query.append("let $elem:= string-join($d/text()) \n"); // $d/text() // data($d)
 			query.append("let $atLeastOneMod:= tokenize($d/@clioxml:node__pmids,'\\s') \n");
-			query.append("let $original_value:= data($d/@clioxml:node__oldvalue) \n");
+			//query.append("let $original_value:= data($d/@clioxml:node__oldvalue) \n");
 		} else {
 			query.append("let $elem:= $d \n");
 			query.append("let $atLeastOneMod:= tokenize($elem/../@clioxml:").append(attribute).append("__pmids,'\\s') \n");
-			query.append("let $original_value:= data($elem/../@clioxml:").append(attribute).append("__oldvalue) \n");
+			//query.append("let $original_value:= data($elem/../@clioxml:").append(attribute).append("__oldvalue) \n");
 		}
 		
 		query.append("group by $elem  \n");
 		
-		//query.append("let $ori := for $e in $original_value let $f:=$e group by $f return <c><old_modalite>{$f}</old_modalite><old_count>{count($e)}</old_count></c>  \n");
+		/*
 		query.append("let $ori := for $e in $original_value\n");
 		query.append("            let $f:=$e \n");
 		query.append("            group by $f\n");
@@ -735,9 +904,12 @@ public class XQueryUtil {
 		query.append("                      <old_modalite>{$f}</old_modalite>\n");
 		query.append("                      <old_count>{count($e)}</old_count>\n");
 		query.append("                   </c>  \n");
+		*/
+		
 		query.append("return   <r>\n");
 		query.append("            <modalite> { $elem } </modalite>\n");
-		query.append("            <clioxml_initial_value>{$ori}</clioxml_initial_value>\n");
+		//query.append("            <clioxml_initial_value>{$ori}</clioxml_initial_value>\n");
+		query.append("            <clioxml_initial_value></clioxml_initial_value>\n");
 		query.append("            <clioxml_modify>{distinct-values($atLeastOneMod)}</clioxml_modify>\n");
 		query.append("            <count>{ count($d) }</count>\n");
 		query.append("         </r>\n");
@@ -748,7 +920,7 @@ public class XQueryUtil {
 		GenericServer server = p.connection.newBackend();
 		try {
 			server.openDatabase();
-					
+			//System.out.println("currentModification="+p.currentModification);		
 			StringBuffer xquery = new StringBuffer("<result xmlns:clioxml=\"http://www.clioxml\">{\n");
 			xquery.append("let $last_collection := for $d in collection() return $d \n");
 			xquery.append(p.currentModification).append(" \n");

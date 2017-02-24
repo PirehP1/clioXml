@@ -16,17 +16,18 @@ Ext.define('ModaliteInitiale',{
     Ext.define('ModaliteModel',{ // was book
         extend: 'Ext.data.Model',
 		requires:[
-			'ModaliteInitiale'         
+			//'ModaliteInitiale'         
 		],
         fields: [
             // set up the fields mapping into the xml doc
             // The first needs mapping, the others are very basic           
             'modalite', {name:'count',type:"integer"},'clioxml_modify'
 			],
+			/*
 			hasMany: [
 			  { model: 'ModaliteInitiale', name: 'clioxml_initial_value', associationKey:'clioxml_initial_value' }
 			]
-			
+			*/
         
     });
 
@@ -37,7 +38,7 @@ Ext.define('ModaliteInitiale',{
         proxy: {
             // load using HTTP
             type: 'ajax',
-            
+            timeout: 2000000, 
 			actionMethods: {
                             create: 'POST',
                             read: 'POST',
@@ -148,6 +149,11 @@ Ext.define('Desktop.ModalitesWindow', {
 							allowDeselect: true
 						},
 						current_path:null,
+						plugins: {
+					        ptype: 'bufferedrenderer',
+					        trailingBufferZone: 20,  // Keep 20 rows rendered in the table behind scroll
+					        leadingBufferZone: 50   // Keep 50 rows rendered in the table ahead of scroll
+					    },
 						columns: [
 							{
 								text: "modalite", flex: 1, dataIndex: 'modalite', sortable: true,
@@ -266,12 +272,13 @@ Ext.define('Desktop.ModalitesWindow', {
 									
 									
 									,notifyDrop:function(dd, e, node) {
+										//console.log(node.records[0]);
 										if (!node.records[0].data.leaf) {
 											Ext.Msg.alert('Attention', "Vous comptez l'agregat de noeuds");
 											
 											
 											node.records[0].expand();
-											return;
+											//return;
 										}
 										
 										var els = schemaNode_to_array(node);

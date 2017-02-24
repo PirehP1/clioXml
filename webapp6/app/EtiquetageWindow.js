@@ -12,7 +12,7 @@ Ext.define('Desktop.EtiquetageWindow', {
         this.launcher = {
             text: 'Etiquettage',
             iconCls:'icon-grid',
-            idmenu:"etiquetage"
+            idmenu:"modifier"
             
         };
     },

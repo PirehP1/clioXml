@@ -23,6 +23,7 @@ import clioxml.model.Project;
 import clioxml.model.Schema;
 import clioxml.model.User;
 import clioxml.service.Codage;
+import clioxml.service.Corrections;
 import clioxml.service.Filtre;
 import clioxml.service.Service;
 
@@ -116,7 +117,12 @@ public class ImportProjetJob extends Job {
 		      	          final ZipEntry entry = entries.nextElement();
 		      	          //System.out.println("entry = "+ entry.getName());
 		      	          String filename = entry.getName();
-		      	          if (filename.equals("codages.json")) {
+		      	          if (filename.equals("corrections.json")) {
+		      	        	InputStream in = documents.getInputStream( entry );
+		      	        	String corrections = readFully(new InputStreamReader(in));
+		      	        	
+		      	        	Corrections.importCorrections(corrections, projectID);
+		      	          } else if (filename.equals("codages.json")) {
 		      	        	InputStream in = documents.getInputStream( entry );
 		      	        	String codages = readFully(new InputStreamReader(in));
 		      	        	

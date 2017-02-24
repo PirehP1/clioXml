@@ -306,7 +306,7 @@ Ext.define('Desktop.SchemaWindow', {
 
     init : function(){
         this.launcher = {
-            text: 'Schéma',
+            text: 'Afficher le schéma',
             iconCls:'icon-grid',
             idmenu:"schema"
         };
@@ -318,6 +318,7 @@ Ext.define('Desktop.SchemaWindow', {
            var win = desktop.createWindow({
                 //itemId: 'grid-win',
         	    id:'theschema',
+        	    itemId:'theschema',
                 title:'Schéma',
                 width:$(window).width()*0.3,
 				y:0,

@@ -169,8 +169,8 @@ public static HashMap getTableauBrutXml(Project p,List<String> colonnes,List<Has
 		
 		xquery.append(p.currentModification);
 		
-	
-		xquery.append("let $elems := for $d in $last_collection").append(finalCommonsPath).append("\n ");
+	    
+		xquery.append("let $Allelems := for $d in $last_collection").append(finalCommonsPath).append("\n ");
 		xquery.append("where $d").append(finalIdentifiant).append("\n");
 		String wherePart = null;
         
@@ -204,8 +204,11 @@ public static HashMap getTableauBrutXml(Project p,List<String> colonnes,List<Has
 		
 		
 		
-		xquery.append("order by concat(base-uri($d),path($d)) \n"); // position() ?
+		//xquery.append("order by concat(base-uri($d),path($d)) \n"); // position() ?
+		xquery.append("return $d\n");
 		
+		
+		xquery.append("let $elems := for $d in subsequence($Allelems, "+start+","+nbResult+") \n");
 		
 		
 		for (int i=0;i<colonnes.size();i++) {			
@@ -214,7 +217,7 @@ public static HashMap getTableauBrutXml(Project p,List<String> colonnes,List<Has
 			if (l==null || l.size()==0) {
 				//xquery.append("let $a"+i).append(" := let $v:= $d").append(finalColonnes[i]).append(" return <c><sc clioxml_original_value=\"{$v/@clioxml_original_value}\" clioxml_modify=\"{$v/@clioxml_modify}\">{data($v)}</sc></c>\n ");
 				xquery.append("let $a"+i).append(" := let $v:= $d").append(finalColonnes[i]);
-				xquery.append(" return <c>{for $o in $v").append(" return <sc clioxml:node__oldvalue=\"{$o/@clioxml:node__oldvalue}\" clioxml:node__pmids=\"{$o/@clioxml:node__pmids}\">{string-join(data($o),' ')}</sc>}</c>"); // string-join($o//text(),' ')
+				xquery.append(" return <c>{for $o in $v").append(" return <sc clioxml:node__oldvalue=\"{$o/@clioxml:node__oldvalue}\" clioxml:node__pmids=\"{$o/@clioxml:node__pmids}\">{string-join($o//text(),' ')}</sc>}</c>"); // string-join(data($o),' ') string-join($o//text(),' ')
 			} else {
 				
 				List<String> cs = new ArrayList<String>();
@@ -227,7 +230,7 @@ public static HashMap getTableauBrutXml(Project p,List<String> colonnes,List<Has
 					}
 					
 					//xquery.append("<c>{string-join( $v").append(cs.get(j)).append(",'<br/>')}</c>");
-					xquery.append("<c>{for $o in $v").append(cs.get(j)).append(" return <sc clioxml:node__oldvalue=\"{$o/@clioxml:node__oldvalue}\" clioxml:node__pmids=\"{$o/@clioxml:node__pmids}\">{string-join(data($o),' ')}</sc>}</c>");
+					xquery.append("<c>{for $o in $v").append(cs.get(j)).append(" return <sc clioxml:node__oldvalue=\"{$o/@clioxml:node__oldvalue}\" clioxml:node__pmids=\"{$o/@clioxml:node__pmids}\">{string-join($o//text(),' ')}</sc>}</c>");
 				}
 				xquery.append(")\n");
 				//TODO nous devons faire un flatten sur ce hashmap et les child pour avoir :
@@ -257,12 +260,26 @@ public static HashMap getTableauBrutXml(Project p,List<String> colonnes,List<Has
 		//System.out.println(xquery.toString());
 		StringBuffer q=new StringBuffer();
 		if (xslt==null) {
+			q.append(xquery).append("for $doc in $elems return ($doc)\n");
+			/*
+			q.append("return <result>\n");			
+			q.append("    <count>{$count}</count>\n");
+			q.append("    <rs>\n");
+			q.append("{for $doc in $elems return ($doc)}\n");
+			q.append("</rs>\n");
+			q.append("</result>\n");
+			
+			
+			 */
+			/*
 			if (start!= null && nbResult!=null) {
 				q.append(xquery).append("for $doc  in subsequence($elems, "+start+","+nbResult+") return ($doc)");
 			} else {
 				// nolimit !!
 				q.append(xquery).append("for $doc in $elems return ($doc)\n");
+				
 			}
+			*/
 		} else {	
 			//q.append("declare option output:method 'text';\n");
 			//q.append("declare option db:chop 'no';\n");
@@ -292,6 +309,7 @@ public static HashMap getTableauBrutXml(Project p,List<String> colonnes,List<Has
 			h.put("result", q.toString());
 			return h;
 		}
+		//System.out.println("q="+q.toString());
 		GenericServer server = p.connection.newBackend();
 		HashMap h = new HashMap();
 		try {
@@ -299,13 +317,14 @@ public static HashMap getTableauBrutXml(Project p,List<String> colonnes,List<Has
 			
 			
 			if ("1".equals(start)) {
-				String countQuery = new StringBuffer(xquery).append(" return count($elems)").toString();
+				String countQuery = new StringBuffer(xquery).append(" return count($Allelems)").toString();
 				String total = server.executeXQuery(countQuery);
 				
 				h.put("total", Integer.parseInt(total));
 			}
 			
 			//System.out.println("******\n"+q.toString());
+			//System.out.println("q = "+q.toString());
 			String xml = server.executeXQuery(q.toString());
 			
 			

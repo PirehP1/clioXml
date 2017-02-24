@@ -28,4 +28,10 @@ public interface Codage {
 	
 	@JsonIgnore
 	public  Boolean isActive();
+	
+	@JsonIgnore
+	public ArrayList<String> getOldValues();
+	
+	@JsonIgnore
+	public String getWhenTest(Variable v);
 }

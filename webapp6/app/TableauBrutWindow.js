@@ -41,7 +41,7 @@ Ext.define('Desktop.TableauBrutWindow', {
 
     init : function(){
         this.launcher = {
-            text: 'Tableau Brut',
+            text: 'Individus/caractères',
             iconCls:'icon-grid',
             idmenu:"tableau"
         };
@@ -52,7 +52,7 @@ Ext.define('Desktop.TableauBrutWindow', {
 		var theapp = this.app;
            var win = desktop.createWindow({
                 itemId: 'brut-win',
-                title:'Tableau Brut',
+                title:'Tableau Individus/caractères',
                 width:$(window).width()*0.4,
 				y:0,
 				x:$(window).width()*0.3,
@@ -62,6 +62,33 @@ Ext.define('Desktop.TableauBrutWindow', {
                 constrainHeader:true,
                 layout: 'fit',
 				app:theapp,
+				gotoPage:function(p) {
+                	this.currentPage = p;
+                	var grid = this.down("grid");
+                	var start = (this.currentPage-1)*this.nb_result_per_page+1;
+                	grid.loadTableauBrut_start(false,start);
+                },
+                currentPage:1,
+				totalPage:1,
+				nb_result_per_page:20,
+				
+                firstPage:function() {
+                	if (this.currentPage == 1) return;
+					this.gotoPage(1);
+                },
+                lastPage:function() {
+                	if (this.currentPage == this.totalPage) return;					
+					this.gotoPage(this.totalPage);
+                },
+                
+				nextPage:function() {
+					if (this.currentPage == this.totalPage) return;					
+					this.gotoPage(this.currentPage+1);
+				},
+				prevPage:function() {
+					if (this.currentPage == 1) return;
+					this.gotoPage(this.currentPage-1);
+				},
 				execFromHisto(data) {
 					
 					
@@ -314,7 +341,104 @@ Ext.define('Desktop.TableauBrutWindow', {
                             }
                             
                         ],*/
-                        bufferedRenderer:true,						
+                        bufferedRenderer:true,	
+                        dockedItems: [
+                  					{
+                  						xtype: 'toolbar',
+                  						dock: 'top',
+                  						items: [
+                  							
+                  							
+                  							{
+                  								icon: "theme/neptune/images/grid/page-first.png",										
+                  								xtype: 'button',
+                  								listeners: {
+                  										click:function(button) {
+                  											this.up("window").firstPage();
+                  										}
+                  									}
+                  							},
+                  							{
+                  								icon: "theme/neptune/images/grid/page-prev.png",										
+                  								xtype: 'button',
+                  								listeners: {
+                  										click:function(button) {
+                  											this.up("window").prevPage();
+                  										}
+                  									}
+                  							},
+                  							{
+                  								xtype:'textfield',
+                  								//fieldLabel:'document',
+                  								value:'',
+                  								labelWidth:45,
+                  								grow:true,
+                  								itemId:'pages'
+                  							},
+                  							{
+                  								icon: "theme/neptune/images/grid/page-next.png",										
+                  								xtype: 'button',
+                  								listeners: {
+                  										click:function(button) {
+                  											this.up("window").nextPage();
+                  										}
+                  									}
+                  							},
+                  							{
+                  								icon: "theme/neptune/images/grid/page-last.png",										
+                  								xtype: 'button',
+                  								listeners: {
+                  										click:function(button) {
+                  											this.up("window").lastPage();
+                  										}
+                  									}
+                  							},
+                  							{
+                  								xtype:'combo',
+                  								
+                  								fieldLabel: 'Résultat par page :', 				 
+                  								 width:170,
+                  								 editable:false,
+                  								 
+                  								 //flex:1,
+                  								 store : [10,20,50,100],
+                  								value: 50,
+                  								listeners:{
+                  									select: function(combo, record, index) {
+                  								      //write cool code here
+                  										
+                  										var w = combo.up("window");
+                  										w.nb_result_per_page = record[0].raw[0];
+                  										
+                  										w.gotoPage(1);
+                  										
+                  								    },
+                  									onChange:function(combo, newValue, oldValue, eOpts) {
+                  										alert("onchange");
+                  										/*
+                										if (newValue!=me.current_filtreId) {
+                											me.current_filtreId = newValue;	
+                											me.loadTableauBrut(true);
+                										}
+                										*/
+                									}
+                  								}
+                  							},
+                  							{
+                  								xtype:'label',                  								
+                  								value:'',
+                  								
+                  								width:100,
+                  								itemId:'total_field'
+                  							}
+                  							
+                  						]
+                  					}
+                  					
+                  					
+                  					
+                                  ], // dockeritems
+
 						tbar: [
 							{xtype:'textfield',flex:1,labelStyle: 'width:220px;white-space: nowrap;',fieldLabel:'Ajouter une colonne',itemId:"newCol",editable:false,emptyText:'coller un noeud xml'}
 							,
@@ -431,9 +555,9 @@ Ext.define('Desktop.TableauBrutWindow', {
 											cols.push(getFullPathNS_from_array(schemaNode_to_array2(tableau_brut.clioxml_columns[i].originalNode))); 
 											subcols.push(getColumn(tableau_brut.clioxml_columns[i].cloneNode));
 										}
-										
+										var w = button.up("window");
 										var url="/service/commands?cmd=getXQueryTableauBrut";
-										$.post(url,{colonnes:JSON.stringify(cols),subcols:JSON.stringify(subcols),filtreId:tableau_brut.current_filtreId},function(response) {
+										$.post(url,{colonnes:JSON.stringify(cols),start:1,nbResult:w.nb_result_per_page,subcols:JSON.stringify(subcols),filtreId:tableau_brut.current_filtreId},function(response) {
 											var module = new Desktop.XQueryEditorWindow();
 											module.app = theapp;
 											var xquery=response;		
@@ -599,7 +723,11 @@ Ext.define('Desktop.TableauBrutWindow', {
 							*/
 							return {clioxml_columns:cc2,filtreName:filtreName,filtreId:current_filtreId};
 						},
+						
 						loadTableauBrut:function(addToHisto) {
+								this.loadTableauBrut_start(addToHisto,1);
+						},
+						loadTableauBrut_start:function(addToHisto,start) {
 							var tableau_brut = this;
 							if (tableau_brut.clioxml_columns.length == 0) {
 								return;
@@ -621,17 +749,30 @@ Ext.define('Desktop.TableauBrutWindow', {
 																				
 											
 											
-												
-											$.post('/service/commands?cmd=getTableauBrut',{colonnes:JSON.stringify(cols),start:1,subcols:JSON.stringify(subcols),filtreId:this.current_filtreId},function(data, textStatus, jqXHR ) { 
+											var w = tableau_brut.up("window");	
+											$.post('/service/commands?cmd=getTableauBrut',{colonnes:JSON.stringify(cols),start:start,nbResult:w.nb_result_per_page,subcols:JSON.stringify(subcols),filtreId:this.current_filtreId},function(data, textStatus, jqXHR ) { 
 												tableau_brut.setLoading(false);
 												tableau_brut.up("window").tools["refresh"].hide();
+												if (start == 1) {
+													
+													var total = parseInt($(data).find("total")[0].textContent);
+													w.currentPage = 1;
+													w.totalPage = Math.floor( total/ w.nb_result_per_page);
+													if ((total % w.nb_result_per_page)>0) {
+					                                	w.totalPage = w.totalPage+1;
+					                                }
+													w.down("#total_field").setData(total+" fiche(s) trouvée(s)");
+												}
+												w.down("#pages").setData(w.currentPage+"/"+w.totalPage);
+												
 												/*
 												var xx = (new XMLSerializer()).serializeToString(data);
 												console.log(xx);
 												*/
-												var rownum = 0;
+												var rownum = (w.currentPage-1)*w.nb_result_per_page;
 												var d=[];
 												var d2=[];  // nous créons quand même un 'faux' tableau contenant seulement le nombres de lignes nécessaires
+												
 												$.each($(data).find("rows").children(),function(i,arow) {  // arow = <r>                                         	   
 													var nb_col = $(arow).children().length;
 												  var nb_sc = 0;
@@ -1078,7 +1219,7 @@ function flattenColumn(columns,col,originalCol) {
 	suffix.shift();
 	prefix = prefix.concat(suffix);
 	
-	var c = {type:col.data.type,name:col.data.name,path:getFullPathNS_from_array(prefix)}; 
+	var c = {flex:1,type:col.data.type,name:col.data.name,path:getFullPathNS_from_array(prefix)}; 
 	
 	
 	if (col.data.expanded == true) {

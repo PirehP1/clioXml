@@ -156,4 +156,13 @@ public class CodageNumeric implements Codage {
 		result.add(modify.toString());
 		return result;
 	}
+	@JsonIgnore
+	public ArrayList<String> getOldValues() {
+		return new ArrayList<String>();
+	}
+	
+	@JsonIgnore
+	public String getWhenTest(Variable v) {
+		return "";
+	}
 }

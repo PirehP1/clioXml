@@ -81,15 +81,23 @@ Ext.define('Ext.ux.desktop.App', {
      * then modify the returned object before returning it.
      */
     submenu:[
-             {text: 'Schéma', id:"schema",nomenu:true},
+             
+            
+             //{text: 'Tris simples', id:"tri-simple",menu:[]},
+             //{text: 'Filtres', id:"filtre",menu:[]},               
+             //{text: 'Etiquetage', id:"etiquetage",nomenu:true},
+             //{text: 'Codage', id:"codage",nomenu:true},
+             
+             //{text: 'Corrections', id:"corrections",nomenu:true},
+             
+             {text: 'Schéma', id:"schema",menu:[]},
+             {text: 'Requête', id:"requete",menu:[]},
              {text: 'Tableaux', id:"tableau",menu:[]},
-             {text: 'Tris simples', id:"tri-simple",menu:[]},
-             {text: 'Filtres', id:"filtre",menu:[]},  
-             {text: 'Historique', id:"historique",nomenu:true},
-             {text: 'Etiquetage', id:"etiquetage",nomenu:true},
-             {text: 'Codage', id:"codage",nomenu:true},
+             {text: 'Modifier', id:"modifier",menu:[]},
              {text: 'Requêtes', id:"query",nomenu:true},
+             {text: 'Historique', id:"historique",nomenu:true},
              {text: 'Administration', id:"admin",menu:[]}
+             
              //{text: 'Autre', id:"default",menu:[]}
              
     ],

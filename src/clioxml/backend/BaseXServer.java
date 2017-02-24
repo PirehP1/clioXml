@@ -31,7 +31,9 @@ public class BaseXServer extends GenericServer {
 	}
 	public void openDatabase() throws IOException {
 		session = new ClientSession(this.connection.host, this.connection.port, this.connection.user, this.connection.password);
-		session.execute("OPEN "+this.connection.databaseName);    	
+		session.execute("OPEN "+this.connection.databaseName); 
+		//session.execute("SET TIMEOUT 2000"); uniquemeent via -Dorg.basex.CHOP=false
+		//session.execute("SET KEEPALIVE 2000");
 	}
 	
 	public  String executeXQuery(String xquery) throws IOException {

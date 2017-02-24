@@ -60,11 +60,14 @@ import clioxml.basex.Row;
 import clioxml.basex.TreemapChild;
 import clioxml.basex.TreemapResult;
 import clioxml.codage.CodageExport;
+import clioxml.codage.CodageString;
+import clioxml.codage.CodageStringChild;
 import clioxml.codage.Variable;
 import clioxml.filtre2.Constraint;
 import clioxml.filtre2.FiltreExport;
 import clioxml.job.JobList;
 import clioxml.job.definedjob.GenerateSchemaJob;
+import clioxml.model.Correction;
 import clioxml.model.GenericConnection;
 import clioxml.model.LocalBaseXConnection;
 import clioxml.model.LocalBaseXConnectionReadOnly;
@@ -76,6 +79,7 @@ import clioxml.model.Schema;
 import clioxml.model.User;
 import clioxml.service.Codage;
 import clioxml.service.Contingence;
+import clioxml.service.Corrections;
 import clioxml.service.Filtre;
 import clioxml.service.LigneColonne;
 import clioxml.service.Query;
@@ -174,8 +178,14 @@ public class CommandsServlet extends HttpServlet {
 			downloadModalites(req,resp);
 		} else if ("getListModalites".equals(cmd)) {
 			getListModalites(req,resp);
+		} else if ("getListModalitesJson".equals(cmd)) {
+			getListModalitesJson(req,resp);
+		} else if ("downloadModalitesJson".equals(cmd)) {
+			downloadModalitesJson(req,resp);
 		} else if ("getXQueryListModalites".equals(cmd)) {
 			getXQueryListModalites(req,resp);
+		} else if ("getXQueryListModalitesJson".equals(cmd)) {
+			getXQueryListModalitesJson(req,resp);
 		} else if ("getXQueryFullText".equals(cmd)) {
 			getXQueryFullText(req,resp);
 		} else if ("getXQueryContingence".equals(cmd)) {
@@ -208,11 +218,18 @@ public class CommandsServlet extends HttpServlet {
 			getListModifyModalite(req,resp);
 		} else if ("getAllListModifyModalite".equals(cmd)) {
 			getAllListModifyModalite(req,resp);
-		} else if ("updateActiveModalite".equals(cmd)) {
+		} 
+		/*
+		else if ("updateActiveModalite".equals(cmd)) {
 			updateActiveModalite(req,resp);
-		} else if ("updateMods".equals(cmd)) {
+		} 
+		*/
+		/*
+		else if ("updateMods".equals(cmd)) {
 			updateMods(req,resp); // deprecated !!
-		} else if ("updateCodages".equals(cmd)) {
+		} 
+		*/
+		else if ("updateCodages".equals(cmd)) {
 			updateCodages(req,resp);
 		} else if ("saveIndividu".equals(cmd)) {
 			saveIndividu(req,resp);
@@ -220,6 +237,8 @@ public class CommandsServlet extends HttpServlet {
 			getPrefCodages(req,resp);
 		} else if ("downloadCodage".equals(cmd)) {
 			downloadCodage(req,resp);
+		} else if ("codageToCorrection".equals(cmd)) {
+			codageToCorrection(req,resp);
 		} else if ("exportFiltre".equals(cmd)) {
 			exportFiltre(req,resp);
 		} else if ("listFiltre".equals(cmd)) {
@@ -240,7 +259,21 @@ public class CommandsServlet extends HttpServlet {
 			saveQuery(req,resp);
 		} else if ("listQueries".equals(cmd)) {
 			listQueries(req,resp);
-		} else {
+		} else if ("listCorrections".equals(cmd)) {
+			listCorrections(req,resp);
+		} else if ("getCorrectionNbApplicable".equals(cmd)) {
+			getCorrectionNbApplicable(req,resp);
+		}  else if ("addCorrection".equals(cmd)) {
+			addCorrection(req,resp);
+		} else if ("refreshStatCorrections".equals(cmd)) {
+			refreshStatCorrections(req,resp);
+		} else if ("undoCorrection".equals(cmd)) {
+			undoCorrection(req,resp);
+		} else if ("reApplyCorrection".equals(cmd)) {
+			reApplyCorrection(req,resp);
+		} 
+		
+		else {
 			commandUnkwnown(req,resp);
 		}
 	}
@@ -262,7 +295,7 @@ public class CommandsServlet extends HttpServlet {
 				out.println("{\"error\":\"\"}");					
 			} else {
 				out.println("{\"ok\":\"\"}");
-			}
+		 	}
 			
 		} catch (Exception e) {
 	    	out.println("{\"error\":\"\"}");
@@ -852,7 +885,7 @@ public class CommandsServlet extends HttpServlet {
 		String disposition = "attachment; fileName="+export_name+".json";
 	    resp.setContentType("text/xml");
 	    resp.setHeader("Content-Disposition", disposition);
-	    resp.setHeader("content-Length", String.valueOf(content2.length));
+	    //resp.setHeader("content-Length", String.valueOf(content2.length));
 	    OutputStream out = resp.getOutputStream();
 	    out.write(content2);
 	    out.flush();
@@ -890,7 +923,86 @@ public class CommandsServlet extends HttpServlet {
 		String disposition = "attachment; fileName="+export_name+".json";
 	    resp.setContentType("text/xml");
 	    resp.setHeader("Content-Disposition", disposition);
-	    resp.setHeader("content-Length", String.valueOf(content.length()));
+	    //resp.setHeader("content-Length", String.valueOf(content.length()));
+	    PrintWriter out = resp.getWriter();
+		out.print(content);
+		out.flush();
+		out.close();
+		
+	}
+	
+	public void codageToCorrection(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		
+		HttpSession session = req.getSession(false);
+		User user = (User)session.getAttribute("user");
+		Project p = (Project)session.getAttribute("currentProject");
+		
+		
+		String type = req.getParameter("type");
+		String fullpath = req.getParameter("fullpath");
+		String pmid = req.getParameter("pmid");
+		String content = "";
+		ObjectMapper mapper = new ObjectMapper();
+		CodageExport ce = Codage.getCodageExport(p.id,p.name,"",type,fullpath,pmid);
+		ArrayList<String> erreur = new ArrayList<String>();
+		if (ce!=null && ce.variables!=null) {
+			for (Variable v:ce.variables) {
+				if (v.checked) {
+					for (clioxml.codage.Codage c:v.children) {
+						
+						if (c.isActive()) {
+							if (c instanceof CodageString) {
+								CodageString cs = (CodageString)c;
+								
+								for (CodageStringChild modalite:cs.children) {
+									erreur.addAll(Corrections.addCorrection(user,p,fullpath, modalite.getOldValue(),cs.newValue));									
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		if (ce!=null && ce.codages!=null) {
+			for (Variable v:ce.codages) {
+				fullpath = v.fullpath;
+				if (v.checked) {
+					for (clioxml.codage.Codage c:v.children) {
+						
+						if (c.isActive()) {
+							if (c instanceof CodageString) {
+								CodageString cs = (CodageString)c;
+								
+								for (CodageStringChild modalite:cs.children) {
+									erreur.addAll(Corrections.addCorrection(user,p,fullpath, modalite.getOldValue(),cs.newValue));									
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		// idem pour codages
+		// 
+		HashMap res = new HashMap();
+		if (erreur.size() == 0) {
+			res.put("result", "ok"); // ou ko !
+		} else {
+			res.put("result", "ko");
+			res.put("erreur", erreur);
+		}
+		content = mapper.writeValueAsString(res);
+		
+		
+		resp.setCharacterEncoding("utf8");
+		
+		
+		resp.setContentType("application/json");
+		 
+		
 	    PrintWriter out = resp.getWriter();
 		out.print(content);
 		out.flush();
@@ -956,6 +1068,14 @@ public class CommandsServlet extends HttpServlet {
 		String outfilename = "codages.json";
         addContentToZip(content, outfilename,zout);
         
+        String content2 = "";
+		
+		ArrayList<Correction> ce2 = Corrections.getListCorrections(project_id);
+		content2 = mapper.writeValueAsString(ce2);
+		
+		String outfilename2 = "corrections.json";
+        addContentToZip(content2, outfilename2,zout);
+        
         ArrayList<HashMap> filtres = Filtre.getList(project_id);
         int index=0;
         for (HashMap f: filtres) {
@@ -1002,8 +1122,9 @@ public class CommandsServlet extends HttpServlet {
 		} 
 		String disposition = "attachment; fileName=schema.xsd";
 	    resp.setContentType("text/xml");
+	    resp.setCharacterEncoding("utf8");
 	    resp.setHeader("Content-Disposition", disposition);
-	    resp.setHeader("content-Length", String.valueOf(content.length()));
+	    //resp.setHeader("content-Length", String.valueOf(content.length()));
 	    PrintWriter out = resp.getWriter();
 		out.print(content);
 		out.flush();
@@ -1238,6 +1359,98 @@ public class CommandsServlet extends HttpServlet {
 		
 	}
 	
+	public void downloadModalitesJson(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		HttpSession session = req.getSession(false);
+		User user = (User)session.getAttribute("user");
+		Project p = (Project)session.getAttribute("currentProject");
+		
+		String path = req.getParameter("path");
+		String ref_path = req.getParameter("refpath");
+		Integer start = 1;
+		Integer end  = 99999;
+		Long filtreId = null;
+		try {
+			filtreId = Long.parseLong(req.getParameter("filtreId"));
+		} catch (Exception e) {
+			
+		}
+		
+		String result = XQueryUtil.getListModalitesJson(user, p, ref_path,path, filtreId,true,start,end,true);
+		
+		ObjectMapper mapper = new ObjectMapper();
+		
+		ArrayList<HashMap<String,String>> colonnes = mapper.readValue(result,new TypeReference<ArrayList<HashMap<String,String>>>() {});
+		
+		
+		
+		StringWriter writer = new StringWriter();
+		CSVPrinter csvWriter = new CSVPrinter(writer,CSVFormat.EXCEL.withDelimiter(';'));
+		ArrayList row = new ArrayList();
+		row.add(XQueryUtil.removeQName(path));
+		//row.add("ancienne valeur");
+		row.add("#recodage");
+		row.add("count");
+		csvWriter.printRecord(row); 
+		
+		for(HashMap<String,String> h:colonnes) {
+			
+			row = new ArrayList();
+			
+			row.add(h.get("val"));
+			row.add(h.get("pm"));
+			row.add(h.get("count"));
+			
+			
+			csvWriter.printRecord(row);
+		}
+		
+		
+		
+		
+	    csvWriter.close();
+	    		
+		String s = writer.getBuffer().toString();
+		
+		
+		String disposition = "attachment; fileName=modalites.csv";
+	    resp.setContentType("text/csv");
+	    resp.setCharacterEncoding("utf8");
+	    resp.setHeader("Content-Disposition", disposition);
+	    //resp.setHeader("content-Length", String.valueOf(s.length()));
+	    PrintWriter out = resp.getWriter();
+		out.print(s);
+		out.flush();
+		out.close();
+		    
+	}
+	public void getListModalitesJson(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		HttpSession session = req.getSession(false);
+		User user = (User)session.getAttribute("user");
+		Project p = (Project)session.getAttribute("currentProject");
+		
+		String path = req.getParameter("path");
+		String ref_path = req.getParameter("refpath");
+		Integer start = Integer.parseInt(req.getParameter("start"));
+		Integer end  = Integer.parseInt(req.getParameter("end"));
+		Long filtreId = null;
+		try {
+			filtreId = Long.parseLong(req.getParameter("filtreId"));
+		} catch (Exception e) {
+			
+		}
+		
+		String result = XQueryUtil.getListModalitesJson(user, p, ref_path,path, filtreId,true,start,end,false);
+		
+		resp.setContentType("application/json");
+		resp.setCharacterEncoding("utf8");
+		PrintWriter out = resp.getWriter();
+		out.print(result);
+		out.flush();
+		out.close();
+	}
+	
 	public void getListModalites(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		HttpSession session = req.getSession(false);
@@ -1256,6 +1469,8 @@ public class CommandsServlet extends HttpServlet {
 		resp.setCharacterEncoding("utf8");
 		PrintWriter out = resp.getWriter();
 		out.print(result);
+		out.flush();
+		out.close();
 		
 	}
 	
@@ -1285,6 +1500,34 @@ public class CommandsServlet extends HttpServlet {
 		resp.setCharacterEncoding("utf8");
 		PrintWriter out = resp.getWriter();
 		out.print(result);
+		
+	}
+	
+	public void getXQueryListModalitesJson(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		HttpSession session = req.getSession(false);
+		User user = (User)session.getAttribute("user");
+		Project p = (Project)session.getAttribute("currentProject");
+		
+		String path = req.getParameter("path");
+		String ref_path = req.getParameter("refpath");
+		Integer start = Integer.parseInt(req.getParameter("start"));
+		Integer end  = Integer.parseInt(req.getParameter("end"));
+		Long filtreId = null;
+		try {
+			filtreId = Long.parseLong(req.getParameter("filtreId"));
+		} catch (Exception e) {
+			
+		}
+		
+		String result = XQueryUtil.getListModalitesJson(user, p, ref_path,path, filtreId,false,start,end,false);
+		
+		
+		resp.setCharacterEncoding("utf8");
+		PrintWriter out = resp.getWriter();
+		out.print(result);
+		out.flush();
+		out.close();
 		
 	}
 	
@@ -1331,8 +1574,8 @@ public class CommandsServlet extends HttpServlet {
 		Project p = (Project)session.getAttribute("currentProject");
 		
 		
-		String start = "1";
-		String nbResult = null; // all result
+		String start = req.getParameter("start");
+		String nbResult = req.getParameter("nbResult");
 		Long filtreId = -1L;
 		try {
 			filtreId = Long.parseLong(req.getParameter("filtreId"));
@@ -1418,10 +1661,13 @@ public class CommandsServlet extends HttpServlet {
 		
 		String disposition = "attachment; fileName=modalites.csv";
 	    resp.setContentType("text/csv");
+	    resp.setCharacterEncoding("utf8");
 	    resp.setHeader("Content-Disposition", disposition);
-	    resp.setHeader("content-Length", String.valueOf(s.length()));
+	    //resp.setHeader("content-Length", String.valueOf(s.length()));
 	    PrintWriter out = resp.getWriter();
 		out.print(s);
+		out.flush();
+		out.close();
 		    
 	}
 	
@@ -1640,12 +1886,12 @@ public class CommandsServlet extends HttpServlet {
 	    
 	    
 	    
-		HashMap tableau_brut = Service.getTableauBrutXml(p,colonnes,subcols,null,null,filtreId,xslt,"text",xsltVars,true);
+		HashMap tableau_brut = Service.getTableauBrutXml(p,colonnes,subcols,"1","999999",filtreId,xslt,"text",xsltVars,true);
 		String s = (String)tableau_brut.get("result");
 		String disposition = "attachment; fileName="+nomExport+".txt";
 	    resp.setContentType("text/plain");
 	    resp.setHeader("Content-Disposition", disposition);
-	    resp.setHeader("content-Length", String.valueOf(s.length()));
+	    //resp.setHeader("content-Length", String.valueOf(s.length()));
 	    PrintWriter out = resp.getWriter();
 		out.print(s);
 		out.flush();
@@ -1679,7 +1925,7 @@ public class CommandsServlet extends HttpServlet {
 		
 		
 		String start = "1";
-		String nbResult = null; // all result
+		String nbResult = "999999"; // all result
 		Long filtreId = -1L;
 		try {
 			filtreId = Long.parseLong(req.getParameter("filtreId"));
@@ -1757,9 +2003,10 @@ public class CommandsServlet extends HttpServlet {
 	    		
 		String s = writer.getBuffer().toString();
 		String disposition = "attachment; fileName=tableau_brut.csv";
+		resp.setCharacterEncoding("utf8");
 	    resp.setContentType("text/csv");
 	    resp.setHeader("Content-Disposition", disposition);
-	    resp.setHeader("content-Length", String.valueOf(s.length()));
+	    //resp.setHeader("content-Length", String.valueOf(s.length()));
 	    PrintWriter out = resp.getWriter();
 		out.print(s);
 		out.flush();
@@ -2629,10 +2876,13 @@ public class CommandsServlet extends HttpServlet {
 		String s = writer.getBuffer().toString();
 		String disposition = "attachment; fileName=contingence.csv";
         resp.setContentType("text/csv");
+        resp.setCharacterEncoding("utf8");
         resp.setHeader("Content-Disposition", disposition);
-        resp.setHeader("content-Length", String.valueOf(s.length()));
+        //resp.setHeader("content-Length", String.valueOf(s.length()));
         PrintWriter out = resp.getWriter();
 		out.print(s);
+		out.flush();
+		out.close();
         	
 	}
 	public void saveDoc(HttpServletRequest req, HttpServletResponse resp)
@@ -2721,7 +2971,7 @@ public class CommandsServlet extends HttpServlet {
 		
 	}
 	
-	
+	/*
 	public void updateModalite(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 
@@ -2762,8 +3012,8 @@ public class CommandsServlet extends HttpServlet {
 		h.put("result","");
 		out.println(mapper.writeValueAsString(h));
 	}
-	
-	
+	*/
+	/*
 	public void updateActiveModalite(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		HttpSession session = req.getSession(false);
@@ -2788,7 +3038,8 @@ public class CommandsServlet extends HttpServlet {
 		h.put("result","ok");
 		out.println(mapper.writeValueAsString(h));
 	}
-	
+	*/
+	/*
 	public void updateMods(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		HttpSession session = req.getSession(false);
@@ -2818,14 +3069,7 @@ public class CommandsServlet extends HttpServlet {
 		
 		
 		// format recu :
-		/*
-		 [{id=Ext.data.TreeModel-35, new_value=ABBOU2, pmid=8, active=true, old_values=[{
-			old_value=ABBO, active=false}, {old_value=ABBOU, active=false}, {old_value=MESSO
-			ULAM, active=true}]}]
-			
-			TODO : pour chaque element : si pmid=0 alors creation, sinon on modifie
-		 */
-    	
+		
 		
 		ArrayList<ProjectModify> pms = Service.getModification(p);
     	p.currentModification = XQueryUtil.getModifications(pms);
@@ -2838,7 +3082,7 @@ public class CommandsServlet extends HttpServlet {
 		h.put("result","ok");
 		out.println(mapper.writeValueAsString(h));
 	}
-	
+	*/
 	
 	public void saveIndividu(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
@@ -3129,6 +3373,8 @@ public class CommandsServlet extends HttpServlet {
 		Project p = (Project)session.getAttribute("currentProject");
 		
 		response.put("filtres",Filtre.getList(p.id));
+		resp.setCharacterEncoding("utf8");
+		resp.setContentType("application/json");
 		ObjectMapper mapper = new ObjectMapper();
 		PrintWriter out = resp.getWriter();
 		out.println(mapper.writeValueAsString(response));
@@ -3235,6 +3481,282 @@ public class CommandsServlet extends HttpServlet {
 		
 		HashMap response= new HashMap();
 		response.put("queries", queries);
+		resp.setContentType("application/json");
+		resp.setCharacterEncoding("utf8");
+		PrintWriter out = resp.getWriter();
+		
+		ObjectMapper mapper = new ObjectMapper();
+		out.println(mapper.writeValueAsString(response));
+	}
+	
+	public void listCorrections(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		HttpSession session = req.getSession(false);
+		User user = (User)session.getAttribute("user");
+		Project p = (Project)session.getAttribute("currentProject");
+		
+		/*
+		Correction c = new Correction();
+		c.projectId = p.id;
+		c.path="/prosop/person/formation/grade/data";
+		c.oldValue="Maître ès arts (Paris)1493.";
+		c.newValue="NEW VALUE";
+		c.id = Corrections.insertCorrection(c.projectId,c);
+		*/
+		ArrayList<Correction> corrections = Corrections.getListCorrections(p.id);
+		
+		
+		HashMap response= new HashMap();
+		response.put("corrections", corrections);
+		resp.setContentType("application/json");
+		resp.setCharacterEncoding("utf8");
+		PrintWriter out = resp.getWriter();
+		
+		ObjectMapper mapper = new ObjectMapper();
+		out.println(mapper.writeValueAsString(response));
+	}
+	
+	public void getCorrectionNbApplicable(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		HttpSession session = req.getSession(false);
+		User user = (User)session.getAttribute("user");
+		Project p = (Project)session.getAttribute("currentProject");
+		
+		String path = req.getParameter("path");
+		String[] modalites = req.getParameterValues("modalites[]");
+		ArrayList<String> counts = new ArrayList<String>();
+		ArrayList<String> erreur = new ArrayList<String>();
+		for (String modalite:modalites) {
+			Correction c = new Correction();
+			c.id = -1L;
+			c.oldValue = modalite;
+			c.path = path;
+			String xquery = Corrections.getNodeTestCorrectionXQuery(c);
+			String result_str = "";
+			
+			try {		
+				result_str = XQueryUtil.executeRawXquery(user, p, xquery);
+				counts.add(result_str);
+			} catch (Exception e) {
+				erreur.add(e.getMessage());
+			}
+		}
+		
+		HashMap response = new HashMap();
+		if (erreur.size()>0) {
+			response.put("erreur", erreur);
+		} else {
+			response.put("nb_applicable", StringUtils.join(counts,","));
+		}
+		
+		resp.setContentType("application/json");
+		resp.setCharacterEncoding("utf8");
+		PrintWriter out = resp.getWriter();
+		
+		ObjectMapper mapper = new ObjectMapper();
+		out.println(mapper.writeValueAsString(response));
+	}
+	
+	public void addCorrection(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		HttpSession session = req.getSession(false);
+		User user = (User)session.getAttribute("user");
+		Project p = (Project)session.getAttribute("currentProject");
+		
+		String path = req.getParameter("path");
+		String[] modalites = req.getParameterValues("modalites[]");
+		
+		String newValue = req.getParameter("newValue");
+		ArrayList<String> erreur = new ArrayList<String>();
+		
+		for (String modalite:modalites) {
+			
+			//String nbApplicable = req.getParameter("nbApplicable");
+			Correction c = new Correction();
+			
+			c.oldValue = modalite;
+			c.path = path;
+			c.newValue = newValue;
+			c.projectId = p.id;
+			c.id = Corrections.insertCorrection(p.id, c);
+			
+			if (c.id == -1L) {
+					erreur.add("erreur lors de la creation de la correction pour : "+modalite);
+			} else {
+				String xquery = Corrections.getApplyCorrectionXQuery(c.id);
+				try {		
+					XQueryUtil.executeRawXquery(user, p, xquery);
+					
+					String xquery3 = Corrections.getNodeTestCorrectionXQuery(c);
+					String nbApplicable = XQueryUtil.executeRawXquery(user, p, xquery3);
+					
+					String xquery2  = Corrections.getNodeApplyedCorrectionXQuery(c.id);
+					String nbApplique = XQueryUtil.executeRawXquery(user, p, xquery2);
+					
+					
+					c.nb_applicable = Integer.parseInt(nbApplicable);
+					c.nb_applique = Integer.parseInt(nbApplique);
+					Corrections.updateCorrection(c);
+					
+				} catch (Exception e) {
+					erreur.add(e.getMessage());
+				}
+			}
+		} // for (String:modalite
+		HashMap response = new HashMap();
+		if (erreur.size()>0) {
+			response.put("erreur", erreur);
+		} else {
+			response.put("ok", "true");
+		}
+		
+		resp.setContentType("application/json");
+		resp.setCharacterEncoding("utf8");
+		PrintWriter out = resp.getWriter();
+		
+		ObjectMapper mapper = new ObjectMapper();
+		out.println(mapper.writeValueAsString(response));
+	}
+	
+	public void refreshStatCorrections(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		HttpSession session = req.getSession(false);
+		User user = (User)session.getAttribute("user");
+		Project p = (Project)session.getAttribute("currentProject");
+		
+	    ArrayList<Correction> cs = Corrections.getListCorrections(p.id);
+		for (Correction c:cs) {
+			
+			try {
+				String xquery = Corrections.getNodeTestCorrectionXQuery(c);
+				String nbApplicable = XQueryUtil.executeRawXquery(user, p, xquery);
+				
+				String xquery2  = Corrections.getNodeApplyedCorrectionXQuery(c.id);
+				String nbApplique = XQueryUtil.executeRawXquery(user, p, xquery2);
+				c.nb_applicable = Integer.parseInt(nbApplicable);
+				c.nb_applique = Integer.parseInt(nbApplique);
+				Corrections.updateCorrection(c);
+				
+			} catch (Exception e) {
+				
+			}
+		}
+		HashMap response = new HashMap();
+		
+		response.put("ok", "true");
+		
+		
+		resp.setContentType("application/json");
+		resp.setCharacterEncoding("utf8");
+		PrintWriter out = resp.getWriter();
+		
+		ObjectMapper mapper = new ObjectMapper();
+		out.println(mapper.writeValueAsString(response));
+	}
+	
+	
+	public void reApplyCorrection(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		HttpSession session = req.getSession(false);
+		User user = (User)session.getAttribute("user");
+		Project p = (Project)session.getAttribute("currentProject");
+		
+	    Long correctionId = Long.parseLong(req.getParameter("id"));
+	    Correction c = Corrections.getCorrection(correctionId);
+	    
+	    ArrayList<String> erreur = new ArrayList<String>();
+	    
+	    if (c==null || c.projectId!=p.id) {
+	    	erreur.add("bad correction id or not the same project");
+	    } else {
+		    String xquery = Corrections.getApplyCorrectionXQuery(c.id);
+		    
+			try {		
+				String applyResult = XQueryUtil.executeRawXquery(user, p, xquery);
+				
+				if (applyResult!= null && !"".equals(applyResult)) {					
+					erreur.add(applyResult);
+				}
+				String xquery3 = Corrections.getNodeTestCorrectionXQuery(c);
+				String nbApplicable = XQueryUtil.executeRawXquery(user, p, xquery3);
+				
+				String xquery2  = Corrections.getNodeApplyedCorrectionXQuery(c.id);
+				String nbApplique = XQueryUtil.executeRawXquery(user, p, xquery2);
+				
+				
+				c.nb_applicable = Integer.parseInt(nbApplicable);
+				c.nb_applique = Integer.parseInt(nbApplique);
+				Corrections.updateCorrection(c);
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+				erreur.add(e.getMessage());
+			}
+	    }
+		HashMap response = new HashMap();
+		
+		if (erreur.size()>0) {
+			response.put("erreur", StringUtils.join(erreur,"\n"));
+		} else {
+			response.put("ok", "true");
+		}
+		
+		
+		resp.setContentType("application/json");
+		resp.setCharacterEncoding("utf8");
+		PrintWriter out = resp.getWriter();
+		
+		ObjectMapper mapper = new ObjectMapper();
+		out.println(mapper.writeValueAsString(response));
+	}
+	
+	public void undoCorrection(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		HttpSession session = req.getSession(false);
+		User user = (User)session.getAttribute("user");
+		Project p = (Project)session.getAttribute("currentProject");
+		
+	    Long correctionId = Long.parseLong(req.getParameter("id"));
+	    Correction c = Corrections.getCorrection(correctionId);
+	    
+	    ArrayList<String> erreur = new ArrayList<String>();
+	    
+	    if (c==null || c.projectId!=p.id) {
+	    	erreur.add("bad correction id or not the same project");
+	    } else {
+		    String xquery = Corrections.getUndoApplyCorrectionXQuery(c.id);
+		    
+			try {		
+				String undoResult = XQueryUtil.executeRawXquery(user, p, xquery);
+				
+				if (undoResult!= null && !"".equals(undoResult)) {					
+					erreur.add(undoResult);
+				}
+				String xquery3 = Corrections.getNodeTestCorrectionXQuery(c);
+				String nbApplicable = XQueryUtil.executeRawXquery(user, p, xquery3);
+				
+				String xquery2  = Corrections.getNodeApplyedCorrectionXQuery(c.id);
+				String nbApplique = XQueryUtil.executeRawXquery(user, p, xquery2);
+				
+				
+				c.nb_applicable = Integer.parseInt(nbApplicable);
+				c.nb_applique = Integer.parseInt(nbApplique);
+				Corrections.updateCorrection(c);
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+				erreur.add(e.getMessage());
+			}
+	    }
+		HashMap response = new HashMap();
+		
+		if (erreur.size()>0) {
+			response.put("erreur", StringUtils.join(erreur,"\n"));
+		} else {
+			response.put("ok", "true");
+		}
+		
+		
 		resp.setContentType("application/json");
 		resp.setCharacterEncoding("utf8");
 		PrintWriter out = resp.getWriter();
