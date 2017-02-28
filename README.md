@@ -2,6 +2,8 @@
 Querying of XML Database 
 
 Alain Dallo, Stéphane Lamassé, Laurent Frobert
+
+
 (version [compilée](#compilation))
 
 ## Présentation
