@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import clioxml.job.definedjob.AddDocumentJob;
+import clioxml.job.definedjob.AddXsltJob;
 import clioxml.job.definedjob.GenerateSchemaJob;
 import clioxml.job.definedjob.ImportCodageJob;
 import clioxml.job.definedjob.ImportFiltreJob;
@@ -27,7 +28,8 @@ public class Job implements Serializable , Runnable {
 		jobtype.put(AddDocumentJob.typename,AddDocumentJob.class);
 		jobtype.put(ImportCodageJob.typename,ImportCodageJob.class);
 		jobtype.put(ImportFiltreJob.typename,ImportFiltreJob.class);
-		jobtype.put(ImportProjetJob.typename,ImportProjetJob.class);	
+		jobtype.put(ImportProjetJob.typename,ImportProjetJob.class);
+		jobtype.put(AddXsltJob.typename,AddXsltJob.class);	
         
     }
 	

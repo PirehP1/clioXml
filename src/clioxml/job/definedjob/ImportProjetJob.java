@@ -26,6 +26,7 @@ import clioxml.service.Codage;
 import clioxml.service.Corrections;
 import clioxml.service.Filtre;
 import clioxml.service.Service;
+import clioxml.service.Xslt;
 
 public class ImportProjetJob extends Job {
 	public final static String typename = "importProjet";
@@ -108,6 +109,7 @@ public class ImportProjetJob extends Job {
 					this.project.id = projectID;
 		      	      final Enumeration<? extends ZipEntry> entries = documents.entries();
 		      	    ArrayList<Schema> schemas = null;
+		      	    ArrayList<Xslt> xslts = null;
 		      	      while ( entries.hasMoreElements() )
 		      	      {
 		      	    	currentCount++;
@@ -138,7 +140,18 @@ public class ImportProjetJob extends Job {
 		      				   
 		      				schemas = mapper.readValue(schemas_str, typeRef);
 		      				
-		      	          } else if (filename.startsWith("schemas_files/")) {
+		      	          } else if (filename.equals("xslts.json")) {
+			      	        	InputStream in = documents.getInputStream( entry );
+			      	        	String xslts_str = readFully(new InputStreamReader(in));
+			      	        	
+			      	        	JsonFactory factory = new JsonFactory(); 
+			      				ObjectMapper mapper = new ObjectMapper(factory); 
+			      				TypeReference<ArrayList<Xslt>> typeRef = new TypeReference<ArrayList<Xslt>>() {};
+			      				
+			      				   
+			      				xslts = mapper.readValue(xslts_str, typeRef);
+			      				
+			      	     } else if (filename.startsWith("schemas_files/")) {
 		      	        	InputStream in = documents.getInputStream( entry );
 		      	        	int slash = filename.lastIndexOf('/');
 		      	        	int point = filename.lastIndexOf('.');
@@ -150,7 +163,22 @@ public class ImportProjetJob extends Job {
 		      	        	Long id = Service.newSchema(user, p,s.name,in,s.pref_root);
 		      	        	Service.configureSchema(user, p,id,s.pref_root, s.pref);
 		      	        	
-		      	          } else if (filename.startsWith("filtres/")) {
+		      	          } else if (filename.startsWith("xslts_files/")) {
+			      	        	InputStream in = documents.getInputStream( entry );
+			      	        	int slash = filename.lastIndexOf('/');
+			      	        	int point = filename.lastIndexOf('.');
+			      	        	String xslt_id_str = filename.substring(slash+1, point);
+			      	        	Long xslt_id = Long.parseLong(xslt_id_str);
+			      	        	String content = readFully(new InputStreamReader(in));
+			      	        	// find the xslt object with with id
+			      	        	Xslt x = ImportProjetJob.getXslt(xslts,xslt_id);
+			      	        	
+			      	        	if (x!=null) {
+			      	        		Xslt.addXslt(p, x.name, content);
+			      	        	}
+			      	        	
+			      	        	
+			      	      } else if (filename.startsWith("filtres/")) {
 		      	        	InputStream in = documents.getInputStream( entry );
 		      	        	String filtre = readFully(new InputStreamReader(in));
 		      	        	
@@ -217,6 +245,14 @@ public class ImportProjetJob extends Job {
 	public static Schema getSchema(ArrayList<Schema> schemas,Long schema_id) {
 		for (Schema s:schemas) {
 			if (s.id == schema_id) {
+				return s;
+			}
+		}
+		return null;
+	}
+	public static Xslt getXslt(ArrayList<Xslt> xslts,Long xslt_id) {
+		for (Xslt s:xslts) {
+			if (s.id == xslt_id) {
 				return s;
 			}
 		}

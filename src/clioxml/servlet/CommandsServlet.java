@@ -85,6 +85,7 @@ import clioxml.service.LigneColonne;
 import clioxml.service.Query;
 import clioxml.service.Service;
 import clioxml.service.XQueryUtil;
+import clioxml.service.Xslt;
 import clioxml.xsd.SchemaValidate;
  
 public class CommandsServlet extends HttpServlet {
@@ -271,7 +272,11 @@ public class CommandsServlet extends HttpServlet {
 			undoCorrection(req,resp);
 		} else if ("reApplyCorrection".equals(cmd)) {
 			reApplyCorrection(req,resp);
-		} 
+		} else if ("getXsltList".equals(cmd)) {
+			getXsltList(req,resp);
+		} else if ("removeXslt".equals(cmd)) {
+			removeXslt(req,resp);
+		}
 		
 		else {
 			commandUnkwnown(req,resp);
@@ -1094,6 +1099,16 @@ public class CommandsServlet extends HttpServlet {
         for (Schema s:schemas) {
         	outfilename = "schemas_files/"+s.id+".xsd";
         	content = Service.getSchemaContent(s.id);
+        	addContentToZip(content, outfilename,zout);
+        }
+        
+        // export des feuille xslts
+        ArrayList<Xslt> xslts = Xslt.getList(p);
+        content = mapper.writeValueAsString(xslts);
+        addContentToZip(content, "xslts.json",zout);
+        for (Xslt xslt:xslts) {
+        	outfilename = "xslts_files/"+xslt.id+".xslt";
+        	content = Xslt.getContent(p, xslt.id);
         	addContentToZip(content, outfilename,zout);
         }
         
@@ -2553,6 +2568,7 @@ public class CommandsServlet extends HttpServlet {
 		String start = req.getParameter("start");
 		String nbResult = req.getParameter("nbResult");
 		String view_mode = req.getParameter("view_mode");
+		System.out.println("view_mode="+view_mode);
 		Long filtreId = -1L;
 		try {
 			filtreId = Long.parseLong(req.getParameter("filtreId"));
@@ -2625,6 +2641,24 @@ public class CommandsServlet extends HttpServlet {
 				TransformerFactory factory = TransformerFactory.newInstance();
 				
 		        Source xslt = new StreamSource(new File("xml-to-text.xsl"));
+		        Transformer transformer = factory.newTransformer(xslt);
+		        StringReader sr = new StringReader((String)((ArrayList)h.get("result")).get(0));
+		        Source text = new StreamSource(sr);
+		        StringWriter sw = new StringWriter();
+		        transformer.transform(text, new StreamResult(sw));
+		        
+		        ((ArrayList)h.get("result")).set(0, sw.getBuffer().toString());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else if ("xslt".equals(view_mode)) {
+			
+			try {
+				Long xslt_id = Long.parseLong(req.getParameter("xslt_id"));
+				TransformerFactory factory = TransformerFactory.newInstance();
+				
+		        Source xslt = new StreamSource(new StringReader(Xslt.getContent(p, xslt_id)));
+		        
 		        Transformer transformer = factory.newTransformer(xslt);
 		        StringReader sr = new StringReader((String)((ArrayList)h.get("result")).get(0));
 		        Source text = new StreamSource(sr);
@@ -3655,6 +3689,46 @@ public class CommandsServlet extends HttpServlet {
 	}
 	
 	
+	
+	public void removeXslt(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		HttpSession session = req.getSession(false);
+		User user = (User)session.getAttribute("user");
+		Project p = (Project)session.getAttribute("currentProject");
+		
+		Long id = Long.parseLong(req.getParameter("xslt_id"));
+		boolean isRemoved = Xslt.removeXslt(p, id);
+		
+		HashMap<String,String> response = new HashMap<String,String>();
+		if (!isRemoved) {
+			response.put("errorMsg","error during removing");
+		}  else {
+			response.put("errorMsg",null);
+		}
+	    resp.setContentType("application/json");
+		resp.setCharacterEncoding("utf8");
+		PrintWriter out = resp.getWriter();
+		
+		ObjectMapper mapper = new ObjectMapper();
+		out.println(mapper.writeValueAsString(response));
+		
+	}
+	public void getXsltList(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		HttpSession session = req.getSession(false);
+		User user = (User)session.getAttribute("user");
+		Project p = (Project)session.getAttribute("currentProject");
+		
+		ArrayList<Xslt> response = Xslt.getList(p);
+		
+	    resp.setContentType("application/json");
+		resp.setCharacterEncoding("utf8");
+		PrintWriter out = resp.getWriter();
+		
+		ObjectMapper mapper = new ObjectMapper();
+		out.println(mapper.writeValueAsString(response));
+		
+	}
 	public void reApplyCorrection(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		HttpSession session = req.getSession(false);
