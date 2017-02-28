@@ -2,7 +2,7 @@
 Querying of XML Database 
 
 Alain Dallo, Stéphane Lamassé, Laurent Frobert
-
+(version [compilée](#compilation))
 
 ## Présentation
 ClioXML est un logiciel développé avec le soutien du projet de recherche Studium parisiense. Son objectif est de permettre aux chercheurs comme aux étudiants d'explorer, d'interroger, d'exploiter les données structurées dans un fichier ou ensemble de fichiers xml. 
@@ -109,5 +109,5 @@ Build failed
 	* créer/importer un schéma pour ce projet 
 
 
-
+### <a name="compilation"></a> Versions compilées
 Vous pouvez accéder à une version compilée à partir de ce [lien](http://pireh-dev.univ-paris1.fr/ClioXml/clioxml-bin.0.29.1.zip).  
