@@ -110,4 +110,4 @@ Build failed
 
 
 
-Vous pouvez accéder à une version compilée à partir de ce [lien](http://pireh-dev.univ-paris1.fr/ClioXml/ ).  
+Vous pouvez accéder à une version compilée à partir de ce [lien](http://pireh-dev.univ-paris1.fr/ClioXml/clioxml-bin.0.29.1.zip).  
