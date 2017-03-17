@@ -7,6 +7,7 @@ Alain Dallo, Stéphane Lamassé, Laurent Frobert
 (version [compilée](#compilation))
 
 ## Présentation
+
 ClioXML est un logiciel développé avec le soutien du projet de recherche Studium parisiense. Son objectif est de permettre aux chercheurs comme aux étudiants d'explorer, d'interroger, d'exploiter les données structurées dans un fichier ou ensemble de fichiers xml. 
 Il s'agit donc essentiellement de manipuler des données dans un objectif de recherche afin de produire graphiques, tableaux. 
 	Celui-ci a donc quatre objectifs principaux :
