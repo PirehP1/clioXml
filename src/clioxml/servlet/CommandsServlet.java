@@ -104,6 +104,7 @@ public class CommandsServlet extends HttpServlet {
 	
 	public void processCommand(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String cmd = req.getParameter("cmd");
+		//System.out.println("cmd="+cmd);
 		
 		if ("createCollection".equals(cmd)) {
 			createCollection(req,resp);
@@ -133,6 +134,8 @@ public class CommandsServlet extends HttpServlet {
 			downloadSchema(req,resp);
 		} else if ("exportProject".equals(cmd)) {
 			exportProject(req,resp);
+		} else if ("exportXslt".equals(cmd)) {
+			exportXslt(req,resp);
 		} else if ("listLastProjects".equals(cmd)) {
 			listLastProjects(req,resp);
 		} else if ("newProject".equals(cmd)) {
@@ -276,7 +279,14 @@ public class CommandsServlet extends HttpServlet {
 			getXsltList(req,resp);
 		} else if ("removeXslt".equals(cmd)) {
 			removeXslt(req,resp);
-		}
+		} else if ("getXslt".equals(cmd)) {
+			getXslt(req,resp);
+		} else if ("echoXml".equals(cmd)) {
+			echoXml(req,resp);
+		} 
+		
+		
+		
 		
 		else {
 			commandUnkwnown(req,resp);
@@ -1107,9 +1117,14 @@ public class CommandsServlet extends HttpServlet {
         content = mapper.writeValueAsString(xslts);
         addContentToZip(content, "xslts.json",zout);
         for (Xslt xslt:xslts) {
-        	outfilename = "xslts_files/"+xslt.id+".xslt";
-        	content = Xslt.getContent(p, xslt.id);
-        	addContentToZip(content, outfilename,zout);
+        	Xslt x = Xslt.getContent(p, xslt.id);
+        	String extension = "xsl";
+        	if ("css".equals(x.type)) {
+        		extension= "css";
+        	}
+        	outfilename = "xslts_files/"+xslt.id+"."+extension;
+        	
+        	addContentToZip(x.content, outfilename,zout);
         }
         
 	    zout.flush();
@@ -2568,7 +2583,7 @@ public class CommandsServlet extends HttpServlet {
 		String start = req.getParameter("start");
 		String nbResult = req.getParameter("nbResult");
 		String view_mode = req.getParameter("view_mode");
-		System.out.println("view_mode="+view_mode);
+		//System.out.println("view_mode="+view_mode);
 		Long filtreId = -1L;
 		try {
 			filtreId = Long.parseLong(req.getParameter("filtreId"));
@@ -2654,6 +2669,7 @@ public class CommandsServlet extends HttpServlet {
 		} else if ("xslt".equals(view_mode)) {
 			
 			try {
+				/*
 				Long xslt_id = Long.parseLong(req.getParameter("xslt_id"));
 				TransformerFactory factory = TransformerFactory.newInstance();
 				
@@ -2666,6 +2682,22 @@ public class CommandsServlet extends HttpServlet {
 		        transformer.transform(text, new StreamResult(sw));
 		        
 		        ((ArrayList)h.get("result")).set(0, sw.getBuffer().toString());
+		        */
+				Long xslt_id = Long.parseLong(req.getParameter("xslt_id"));
+				
+				String sr = (String)((ArrayList)h.get("result")).get(0);
+				StringBuffer sb2 = new StringBuffer();
+				String s = "http://"+req.getServerName()+":"+req.getServerPort();
+				sb2.append("<?xml version='1.0' encoding='UTF-8\'?>\n");
+				String type="xsl";
+				Xslt x = Xslt.getContent(p, xslt_id);
+				if ("css".equals(x.type)) {
+					type="css";
+				}
+				sb2.append("<?xml-stylesheet type='text/"+type+"' href='"+s+"/service/commands?cmd=getXslt&amp;id="+xslt_id+"'?>\n"); //type='text/xsl'
+				sb2.append(sr);
+				((ArrayList)h.get("result")).set(0, sb2);
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -3690,6 +3722,45 @@ public class CommandsServlet extends HttpServlet {
 	
 	
 	
+	public void echoXml(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		
+		String xml = req.getParameter("xml");
+		
+				
+	    resp.setContentType("application/xml");
+		resp.setCharacterEncoding("utf8");
+		
+		PrintWriter out = resp.getWriter();
+		
+		
+		out.println(xml);
+		
+	}
+	
+	public void getXslt(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		
+		HttpSession session = req.getSession(false);
+		User user = (User)session.getAttribute("user");
+		Project p = (Project)session.getAttribute("currentProject");
+		
+		Long id = Long.parseLong(req.getParameter("id"));
+		Xslt xslt = Xslt.getContent(p, id);
+		
+		
+				/*
+	    resp.setContentType("application/json");
+		resp.setCharacterEncoding("utf8");
+		*/
+		resp.setCharacterEncoding("utf8");
+		PrintWriter out = resp.getWriter();
+		
+		
+		out.println(xslt.content);
+		
+	}
+	
 	public void removeXslt(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		HttpSession session = req.getSession(false);
@@ -3713,6 +3784,45 @@ public class CommandsServlet extends HttpServlet {
 		out.println(mapper.writeValueAsString(response));
 		
 	}
+	public void exportXslt(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		HttpSession session = req.getSession(false);
+		User user = (User)session.getAttribute("user");
+		Project p = (Project)session.getAttribute("currentProject");
+		String name = req.getParameter("name");
+		
+		
+		ServletOutputStream out = resp.getOutputStream();
+		ZipOutputStream zout=new ZipOutputStream(out);
+		
+		
+		
+		String disposition = "attachment; fileName="+name+".zip";
+	    resp.setContentType("application/octet-stream");
+	    resp.setHeader("Content-Disposition", disposition);
+	    
+	    
+        // export des feuille xslts
+        ArrayList<Xslt> xslts = Xslt.getList(p);
+        ObjectMapper mapper = new ObjectMapper();
+        String content = mapper.writeValueAsString(xslts);
+        addContentToZip(content, "xslts.json",zout);
+        for (Xslt xslt:xslts) {
+        	Xslt x = Xslt.getContent(p, xslt.id);
+        	String extension = "xsl";
+        	if ("css".equals(x.type)) {
+        		extension= "css";
+        	}
+        	String outfilename = "xslts_files/"+xslt.id+"."+extension;
+        	
+        	addContentToZip(x.content, outfilename,zout);
+        }
+        
+	    zout.flush();
+	    zout.close();
+		
+	}
+	
 	public void getXsltList(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		HttpSession session = req.getSession(false);

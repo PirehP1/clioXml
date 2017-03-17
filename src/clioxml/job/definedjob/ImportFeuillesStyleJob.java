@@ -28,21 +28,19 @@ import clioxml.service.Filtre;
 import clioxml.service.Service;
 import clioxml.service.Xslt;
 
-public class ImportProjetJob extends Job {
-	public final static String typename = "importProjet";
+public class ImportFeuillesStyleJob extends Job {
+	public final static String typename = "importFeuillesStyle";
 	protected String file_name = null; 
 	protected String temp_file_name = null;
 	protected String project_name = null;
 	protected User user = null;
-	public ImportProjetJob(Project p) {
+	public ImportFeuillesStyleJob(Project p) {
 		
 		super(p);
 		
 		
 	}
-	public void setProjectName(String s) {
-		this.project_name = s;
-	}
+	
 	
 	public void setUser(User u) {
 		this.user = u;
@@ -94,21 +92,11 @@ public class ImportProjetJob extends Job {
 		      	  try
 		      	  {
 		      		Project p = this.project;
-					p.name = this.project_name;
-					p.description = "XX";
-					String database = "local";
 					
-					Long projectID = Service.newProject(this.user, p,null); // to get a projectID
-					File outputDir=null;
-					if (projectID!=null) {
-						//TODO : create dir : local+projectID
-						outputDir = new File("./data/local"+projectID);
-						outputDir.mkdir();
-					}
 					
-					this.project.id = projectID;
+					
 		      	      final Enumeration<? extends ZipEntry> entries = documents.entries();
-		      	    ArrayList<Schema> schemas = null;
+		      	   
 		      	    ArrayList<Xslt> xslts = null;
 		      	      while ( entries.hasMoreElements() )
 		      	      {
@@ -119,28 +107,7 @@ public class ImportProjetJob extends Job {
 		      	          final ZipEntry entry = entries.nextElement();
 		      	          //System.out.println("entry = "+ entry.getName());
 		      	          String filename = entry.getName();
-		      	          if (filename.equals("corrections.json")) {
-		      	        	InputStream in = documents.getInputStream( entry );
-		      	        	String corrections = readFully(new InputStreamReader(in));
-		      	        	
-		      	        	Corrections.importCorrections(corrections, projectID);
-		      	          } else if (filename.equals("codages.json")) {
-		      	        	InputStream in = documents.getInputStream( entry );
-		      	        	String codages = readFully(new InputStreamReader(in));
-		      	        	
-		      	        	Codage.importCodage(codages, p);
-		      	          } else if (filename.equals("schemas.json")) {
-		      	        	InputStream in = documents.getInputStream( entry );
-		      	        	String schemas_str = readFully(new InputStreamReader(in));
-		      	        	
-		      	        	JsonFactory factory = new JsonFactory(); 
-		      				ObjectMapper mapper = new ObjectMapper(factory); 
-		      				TypeReference<ArrayList<Schema>> typeRef = new TypeReference<ArrayList<Schema>>() {};
-		      				
-		      				   
-		      				schemas = mapper.readValue(schemas_str, typeRef);
-		      				
-		      	          } else if (filename.equals("xslts.json")) {
+		      	          if (filename.equals("xslts.json")) {
 			      	        	InputStream in = documents.getInputStream( entry );
 			      	        	String xslts_str = readFully(new InputStreamReader(in));
 			      	        	
@@ -151,19 +118,7 @@ public class ImportProjetJob extends Job {
 			      				   
 			      				xslts = mapper.readValue(xslts_str, typeRef);
 			      				
-			      	     } else if (filename.startsWith("schemas_files/")) {
-		      	        	InputStream in = documents.getInputStream( entry );
-		      	        	int slash = filename.lastIndexOf('/');
-		      	        	int point = filename.lastIndexOf('.');
-		      	        	String schema_id_str = filename.substring(slash+1, point);
-		      	        	Long schema_id = Long.parseLong(schema_id_str);
-		      	        	// find the schemas object with with id
-		      	        	Schema s = ImportProjetJob.getSchema(schemas,schema_id);
-		      	        	
-		      	        	Long id = Service.newSchema(user, p,s.name,in,s.pref_root);
-		      	        	Service.configureSchema(user, p,id,s.pref_root, s.pref);
-		      	        	
-		      	          } else if (filename.startsWith("xslts_files/")) {
+			      	     } else if (filename.startsWith("xslts_files/")) {
 			      	        	InputStream in = documents.getInputStream( entry );
 			      	        	int slash = filename.lastIndexOf('/');
 			      	        	int point = filename.lastIndexOf('.');
@@ -171,46 +126,14 @@ public class ImportProjetJob extends Job {
 			      	        	Long xslt_id = Long.parseLong(xslt_id_str);
 			      	        	String content = readFully(new InputStreamReader(in));
 			      	        	// find the xslt object with with id
-			      	        	Xslt x = ImportProjetJob.getXslt(xslts,xslt_id);
+			      	        	Xslt x = ImportFeuillesStyleJob.getXslt(xslts,xslt_id);
 			      	        	
 			      	        	if (x!=null) {
 			      	        		Xslt.addXslt(p, x.name, content,x.type);
 			      	        	}
 			      	        	
 			      	        	
-			      	      } else if (filename.startsWith("filtres/")) {
-		      	        	InputStream in = documents.getInputStream( entry );
-		      	        	String filtre = readFully(new InputStreamReader(in));
-		      	        	
-		      	        	JsonFactory factory = new JsonFactory(); 
-		      				ObjectMapper mapper = new ObjectMapper(factory); 
-		      				TypeReference<FiltreExport> typeRef = new TypeReference<FiltreExport>() {};
-		      				FiltreExport fe = null;
-		      				   
-		      				fe = mapper.readValue(filtre, typeRef);
-		      				Long f = Filtre.createFiltre(this.project.id, fe.name);
-		    				boolean updated = Filtre.updateFiltre(this.project.id, f, fe.constraints);
-		    				/*
-		    				if (!updated) {
-		    					throw new Exception("error during the import");
-		    				}
-		    				*/
-		      	          } else if (filename.startsWith("clioxml_files/")) {
-		      	        	  filename = filename.substring(14);
-		      	        	  //System.out.println(filename);
-		      	        	  File outputFile = new File(outputDir,filename);
-		      	        	  
-			      	        	FileOutputStream fos = new FileOutputStream(outputFile);             
-			      	        	InputStream in = documents.getInputStream( entry );
-			      	            int len;
-			      	            while ((len = in.read(buffer)) > 0) {
-			      	       		fos.write(buffer, 0, len);
-			      	            }
-			      	        		
-			      	            fos.close();
-			      	            
-		      	        	  
-		      	          }
+			      	      } 
 		      	          
 		      	        
 		      	      }
@@ -242,14 +165,7 @@ public class ImportProjetJob extends Job {
 			
 		}
 	}
-	public static Schema getSchema(ArrayList<Schema> schemas,Long schema_id) {
-		for (Schema s:schemas) {
-			if (s.id == schema_id) {
-				return s;
-			}
-		}
-		return null;
-	}
+	
 	public static Xslt getXslt(ArrayList<Xslt> xslts,Long xslt_id) {
 		for (Xslt s:xslts) {
 			if (s.id == xslt_id) {

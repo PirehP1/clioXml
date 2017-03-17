@@ -60,7 +60,11 @@ public class AddXsltJob extends Job {
 		//System.out.println("projectid="+this.project.id);
 		//System.out.println("xslt name="+this.xslt_name);
 		
-		Xslt.addXslt(this.project,this.xslt_name, content);
+		String type="xsl";
+		if (this.file_name.endsWith("css")) {
+			type="css";
+		}
+		Xslt.addXslt(this.project,this.xslt_name, content,type);
 		
 		// et insertion dans la bd
 		this.progress = 100;

@@ -13,6 +13,7 @@ import clioxml.job.definedjob.AddDocumentJob;
 import clioxml.job.definedjob.AddXsltJob;
 import clioxml.job.definedjob.GenerateSchemaJob;
 import clioxml.job.definedjob.ImportCodageJob;
+import clioxml.job.definedjob.ImportFeuillesStyleJob;
 import clioxml.job.definedjob.ImportFiltreJob;
 import clioxml.job.definedjob.ImportProjetJob;
 import clioxml.model.Project;
@@ -29,7 +30,9 @@ public class Job implements Serializable , Runnable {
 		jobtype.put(ImportCodageJob.typename,ImportCodageJob.class);
 		jobtype.put(ImportFiltreJob.typename,ImportFiltreJob.class);
 		jobtype.put(ImportProjetJob.typename,ImportProjetJob.class);
-		jobtype.put(AddXsltJob.typename,AddXsltJob.class);	
+		jobtype.put(AddXsltJob.typename,AddXsltJob.class);
+		jobtype.put(ImportFeuillesStyleJob.typename,ImportFeuillesStyleJob.class);
+		
         
     }
 	

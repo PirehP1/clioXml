@@ -16,6 +16,7 @@ public class Xslt {
 	public Long id;
 	public String name;
 	public String content;
+	public String type;
 	
 	@JsonIgnore
 	public static ArrayList<Xslt> getList(Project p) {
@@ -24,7 +25,7 @@ public class Xslt {
 		try {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:" + Service.DBPath);
-            statement = connection.prepareStatement("select id,name from xslt where projectid=?  order by name");
+            statement = connection.prepareStatement("select id,name,type from xslt where projectid=?  order by name");
             statement.setLong(1, p.id);
           
             
@@ -36,6 +37,7 @@ public class Xslt {
             	Xslt m = new Xslt();
             	m.id = rs.getLong("id");
             	m.name = rs.getString("name");
+            	m.type = rs.getString("type");
             	//m.content = rs.getString("content");
             	
                
@@ -64,20 +66,20 @@ public class Xslt {
 	}
 	
 	@JsonIgnore
-	public static Long addXslt(Project p,String name,String content) {
+	public static Long addXslt(Project p,String name,String content,String type) {
 		Connection connection = null;
 	    PreparedStatement statement = null;
 	    JsonFactory factory = new JsonFactory(); 
 		try {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:" + Service.DBPath);
-            statement = connection.prepareStatement("insert into xslt (projectid,name,content) values (?,?,?)");                        
+            statement = connection.prepareStatement("insert into xslt (projectid,name,content,type) values (?,?,?,?)");                        
         	int i=1;
         	  
             statement.setLong(i++, p.id);    
             statement.setString(i++,name);    
             statement.setString(i++, content);
-                                         
+            statement.setString(i++, type);
             statement.executeUpdate();
             
             Long result_id = null;
@@ -143,14 +145,14 @@ public class Xslt {
 	}
 	
 	@JsonIgnore
-	public static String getContent(Project p,Long xslt_id) {
+	public static Xslt getContent(Project p,Long xslt_id) {
 		Connection connection = null;
 	    PreparedStatement statement = null;
 	    JsonFactory factory = new JsonFactory(); 
 		try {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:" + Service.DBPath);
-            statement = connection.prepareStatement("select content from xslt where id= ? and projectid = ?");                        
+            statement = connection.prepareStatement("select content,type from xslt where id= ? and projectid = ?");                        
         	
         	     
             statement.setLong(1, xslt_id);
@@ -158,9 +160,10 @@ public class Xslt {
                            
                                       
             ResultSet rs=  statement.executeQuery();
-            String content  = "";
+            Xslt content  = new Xslt();
             if (rs.next()) {
-            	content= rs.getString("content");               	
+            	content.content= rs.getString("content");  
+            	content.type= rs.getString("type");   
                 
             } 
             rs.close();
