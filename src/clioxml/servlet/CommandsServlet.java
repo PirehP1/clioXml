@@ -1427,7 +1427,7 @@ public class CommandsServlet extends HttpServlet {
 			
 			row = new ArrayList();
 			
-			row.add(h.get("val"));
+			row.add(h.get("modalite"));
 			row.add(h.get("pm"));
 			row.add(h.get("count"));
 			
@@ -3602,6 +3602,7 @@ public class CommandsServlet extends HttpServlet {
 			
 			try {		
 				result_str = XQueryUtil.executeRawXquery(user, p, xquery);
+				//System.out.println("xq="+xquery);
 				counts.add(result_str);
 			} catch (Exception e) {
 				erreur.add(e.getMessage());
@@ -3609,7 +3610,7 @@ public class CommandsServlet extends HttpServlet {
 		}
 		
 		HashMap response = new HashMap();
-		if (erreur.size()>0) {
+		if (erreur.size()>0) { 
 			response.put("erreur", erreur);
 		} else {
 			response.put("nb_applicable", StringUtils.join(counts,","));
@@ -3650,6 +3651,7 @@ public class CommandsServlet extends HttpServlet {
 					erreur.add("erreur lors de la creation de la correction pour : "+modalite);
 			} else {
 				String xquery = Corrections.getApplyCorrectionXQuery(c.id);
+				//System.out.println("xq="+xquery);
 				try {		
 					XQueryUtil.executeRawXquery(user, p, xquery);
 					
@@ -3909,7 +3911,7 @@ public class CommandsServlet extends HttpServlet {
 	    	erreur.add("bad correction id or not the same project");
 	    } else {
 		    String xquery = Corrections.getUndoApplyCorrectionXQuery(c.id);
-		    
+		    //System.out.println("xq="+xquery);
 			try {		
 				String undoResult = XQueryUtil.executeRawXquery(user, p, xquery);
 				

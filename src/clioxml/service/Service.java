@@ -217,7 +217,11 @@ public static HashMap getTableauBrutXml(Project p,List<String> colonnes,List<Has
 			if (l==null || l.size()==0) {
 				//xquery.append("let $a"+i).append(" := let $v:= $d").append(finalColonnes[i]).append(" return <c><sc clioxml_original_value=\"{$v/@clioxml_original_value}\" clioxml_modify=\"{$v/@clioxml_modify}\">{data($v)}</sc></c>\n ");
 				xquery.append("let $a"+i).append(" := let $v:= $d").append(finalColonnes[i]);
-				xquery.append(" return <c>{for $o in $v").append(" return <sc clioxml:node__oldvalue=\"{$o/@clioxml:node__oldvalue}\" clioxml:node__pmids=\"{$o/@clioxml:node__pmids}\">{string-join($o//text(),' ')}</sc>}</c>"); // string-join(data($o),' ') string-join($o//text(),' ')
+				String textFunction = "//text()";
+				if (finalColonnes[i].indexOf("@")>-1) {
+					textFunction=""; // if we have an attribute there is no text node
+				}
+				xquery.append(" return <c>{for $o in $v").append(" return <sc clioxml:node__oldvalue=\"{$o/@clioxml:node__oldvalue}\" clioxml:node__pmids=\"{$o/@clioxml:node__pmids}\">{string-join($o"+textFunction+",' ')}</sc>}</c>"); // string-join(data($o),' ') string-join($o//text(),' ')
 			} else {
 				
 				List<String> cs = new ArrayList<String>();
@@ -228,9 +232,12 @@ public static HashMap getTableauBrutXml(Project p,List<String> colonnes,List<Has
 					if (j>0) {
 						xquery.append(",");
 					}
-					
+					String textFunction = "//text()";
+					if (cs.get(j).indexOf("@")>-1) {
+						textFunction=""; // if we have an attribute there is no text node
+					}
 					//xquery.append("<c>{string-join( $v").append(cs.get(j)).append(",'<br/>')}</c>");
-					xquery.append("<c>{for $o in $v").append(cs.get(j)).append(" return <sc clioxml:node__oldvalue=\"{$o/@clioxml:node__oldvalue}\" clioxml:node__pmids=\"{$o/@clioxml:node__pmids}\">{string-join($o//text(),' ')}</sc>}</c>");
+					xquery.append("<c>{for $o in $v").append(cs.get(j)).append(" return <sc clioxml:node__oldvalue=\"{$o/@clioxml:node__oldvalue}\" clioxml:node__pmids=\"{$o/@clioxml:node__pmids}\">{string-join($o"+textFunction+",' ')}</sc>}</c>");
 				}
 				xquery.append(")\n");
 				//TODO nous devons faire un flatten sur ce hashmap et les child pour avoir :

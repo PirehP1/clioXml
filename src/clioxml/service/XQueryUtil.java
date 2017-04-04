@@ -719,7 +719,7 @@ public class XQueryUtil {
 			p4="$occ/@clioxml:node__pmids"; // ou $occ/../@clioxml:field_pmids	
 		} else {
 			p3 = "data($occ)"; // ou data($occ)
-			p4="$occ/../@clioxml:field__pmids"; // ou $occ/../@clioxml:field_pmids
+			p4="$occ/../@clioxml:"+pathSplitted.get(pathSplitted.size()-1).substring(2)+"__pmids"; // ou $occ/../@clioxml:field_pmids
 		}
 		
 		Integer p5 = start;
