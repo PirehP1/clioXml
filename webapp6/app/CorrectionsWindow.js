@@ -3,7 +3,7 @@ Ext.define('CorrectionModel',{ // was book
         extend: 'Ext.data.Model',
 		
         fields: [                 
-            'id', 'path','oldValue','newValue','nb_applicable','nb_applique' // todo : add nb_applique, nb_applicable, 
+            'id', 'path','oldValue','newValue','nb_applicable','nb_applique','min_value','max_value','datatype' // todo : add nb_applique, nb_applicable, 
 			]
 
     });
@@ -256,7 +256,13 @@ Ext.define('Desktop.CorrectionsWindow', {
 								}
 							},
 							{
-								text: "Ancienne Valeur", dataIndex: 'oldValue'
+								text: "Ancienne Valeur", dataIndex: 'oldValue',
+								renderer : function (value, metadata, record, rowIndex, colIndex, store){
+									var datatype = record.get("datatype");
+									if (datatype=="string") return record.get("oldValue");
+									else return "["+record.get("min_value")+";"+record.get("max_value")+"[";
+									
+								}
 							},
 							{	text: "Nouvelle Valeur",  dataIndex: 'newValue'
 								
