@@ -774,6 +774,7 @@ Ext.define('Desktop.CodageWindow2', {
 												
 												
 												if (!isNumericSchemaType(current_path_type)) {
+													
 													new_node = new_node.appendChild({type:'codageString',count:-1,newValue:'',expanded:false,iconCls:'noicon',checked:true}); //active:true,
 													for(var i=0;i<data.records.length;i++) {
 														new_node.appendChild({type:"modalite",count:-1,modalite:data.records[i].get('modalite'),leaf:true,iconCls:'noicon',checked:true}); // getAt(i) sinon, ,active:true												
@@ -818,18 +819,86 @@ Ext.define('Desktop.CodageWindow2', {
 												tree.save();
 												return true;
 										} else {
-											// TODO : si current_path_type is numeric alors ajouter un range et non pas un modalite
-											if (rec.get('type') == 'variable') { // nouveau codage mais dans un path existant												
-												var new_node = rec.appendChild({type:'codageString',count:-1,newValue:'',expanded:true,iconCls:'noicon',active:true,checked:true}); //
-												for(var i=0;i<data.records.length;i++) {
-													new_node.appendChild({type:"modalite",count:-1,modalite:data.records[i].get('modalite'),leaf:true,iconCls:'noicon',active:true,checked:true}); // getAt(i) sinon												
+											// : si current_path_type is numeric alors ajouter un range et non pas un modalite
+											if (rec.get('type') == 'variable') { // nouveau codage mais dans un path existant
+												var current_path=""; // get the current_path from the grid source (if any, otherwise it's another component)
+												var current_path_type="";
+												try {
+													current_path = source.view.grid.current_path;
+													current_path_type = source.view.grid.current_path_type;
 												}
-												
+												catch(err) {
+													Ext.Msg.alert("current_path error");
+													return false;
+													
+												};
+												if (!isNumericSchemaType(current_path_type)) {
+													var new_node = rec.appendChild({type:'codageString',count:-1,newValue:'',expanded:true,iconCls:'noicon',active:true,checked:true}); //
+													for(var i=0;i<data.records.length;i++) {
+														new_node.appendChild({type:"modalite",count:-1,modalite:data.records[i].get('modalite'),leaf:true,iconCls:'noicon',active:true,checked:true}); // getAt(i) sinon												
+													}
+												} else {
+													var new_node = rec.appendChild({type:'codageNumeric',count:-1,newValue:'',expanded:false,iconCls:'noicon',checked:true}); //active:true,
+													var minv = null;
+													var maxv = null;
+													for(var i=0;i<data.records.length;i++) {
+														var v = parseFloat(data.records[i].get('modalite'))	;
+														if (minv==null) {
+															minv=v;
+														}
+														if (maxv==null) {
+															maxv=v;
+														}
+														if (v<minv) {
+															minv = v;
+														}
+														if (v>maxv) {
+															maxv = v;
+														}
+													}
+													new_node.appendChild({type:"range",count:-1,minValue:minv,maxValue:maxv,leaf:true,iconCls:'noicon',checked:true}); // getAt(i) sinon, ,active:true
+												}
+												new_node.expand();	
 												
 												
 											} else {
+												
+												var current_path=""; // get the current_path from the grid source (if any, otherwise it's another component)
+												var current_path_type="";
+												try {
+													current_path = source.view.grid.current_path;
+													current_path_type = source.view.grid.current_path_type;
+												}
+												catch(err) {
+													Ext.Msg.alert("current_path error");
+													return false;
+													
+												};
 												for(var i=0;i<data.records.length;i++) {
-													rec.appendChild({type:"modalite",count:-1,modalite:data.records[i].get('modalite'),leaf:true,iconCls:'noicon',checked:true}); // getAt(i) sinon	,,active:true											
+													if (!isNumericSchemaType(current_path_type)) {
+														rec.appendChild({type:"modalite",count:-1,modalite:data.records[i].get('modalite'),leaf:true,iconCls:'noicon',checked:true}); // getAt(i) sinon	,,active:true
+													} else {
+														// range !														
+														var minv = null;
+														var maxv = null;
+														for(var i=0;i<data.records.length;i++) {
+															var v = parseFloat(data.records[i].get('modalite'))	;
+															if (minv==null) {
+																minv=v;
+															}
+															if (maxv==null) {
+																maxv=v;
+															}
+															if (v<minv) {
+																minv = v;
+															}
+															if (v>maxv) {
+																maxv = v;
+															}
+														}
+														rec.appendChild({type:"range",count:-1,minValue:minv,maxValue:maxv,leaf:true,iconCls:'noicon',checked:true}); // getAt(i) sinon, ,active:true
+													
+													}
 												}		
 											}			
 											//console.log("end");

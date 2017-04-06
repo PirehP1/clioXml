@@ -613,20 +613,22 @@ Ext.define('Desktop.TableauBrutWindow', {
 							
 						},
 						expandColumn:function (current_node) {
+							console.log("expandColumn");
 							current_node.data.expanded = true;
 							
 							if (current_node.childNodes.length>0) {
+								console.log("length>0");
 								return; // le noeud a déjà été 'parsé'
 							}
 							var elementStructure = getSchemaElementStructure(current_node.data.schemaNode);						
-						
+							console.log("elementStructure=",elementStructure);
 							if (elementStructure.localName =='complexType' ) {
 								// start with attributes
 								$.each(elementStructure.childNodes,function(key,val) {
 									if (val.localName == 'attribute') {										
 										var n = {
 											"iconCls":"task",
-											"name":get_ns_element_name(val).name,
+											"name":"@"+get_ns_element_name(val).name,
 											// pas de ns car attribute (pourtant )
 											"leaf":true,
 											expanded: false,
@@ -1169,7 +1171,8 @@ function addPath(parentName,col) {
 	} else {		
 		
 		if (col.data.schemaNode.localName == 'attribute') {
-			name = "@"+name;
+			//name = "@"+name;
+			name = name;
 		}
 		if (parentName == '') 
 			return name;

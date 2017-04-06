@@ -28,7 +28,9 @@ Ext.define('Desktop.App', {
 		'Ext.ux.form.ItemSelector',
         //'Desktop.GridWindow',
 		'Desktop.ImportXmlModal',
+		'Desktop.XsltManagerModal',
 		'Desktop.ImportProjetModal',
+		'Desktop.ImportXsltModal',
 		'Desktop.ImportCodage',
 		 'Desktop.ProjectModal',
 		 'Desktop.SchemaWindow',
@@ -206,7 +208,14 @@ Ext.define('Desktop.App', {
 	                        iconCls:'settings',
 	                        handler: me.onImport,                        
 	                        scope: me
-	                    },					
+	                    },
+	                    {
+	                        text:'Gestion XSLT',
+	                        iconCls:'settings',
+	                        handler: me.onImportXslt,                        
+	                        scope: me
+	                        
+	                    },
 	                    '-',
 	                    {
 	                        text:'Fermer',
@@ -265,6 +274,11 @@ Ext.define('Desktop.App', {
     },
 	onImport: function () {
         var win = Ext.create('Desktop.ImportXmlModal');		
+		win.app = this;
+		win.show();
+    },
+    onImportXslt: function () {
+        var win = Ext.create('Desktop.XsltManagerModal');		
 		win.app = this;
 		win.show();
     },

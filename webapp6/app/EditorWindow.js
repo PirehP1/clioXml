@@ -39,6 +39,18 @@ Ext.define('Desktop.EditorWindow', {
 						
 				items:[
 					{
+						xtype:'panel',						
+						itemId:'html_panel',
+						hidden: true,
+						html:'<div style="height:100%;height:100%" name="html_panel">',
+						//html:'<iframe style="height:100%;height:100%" name="html_panel"><iframe>',
+						listeners:{
+							afterrender:function() {
+								//$("#"+this.id).find("div[name='html_panel']").attr("id",this.id+"-editor");
+							}
+						}
+					},
+					{
 						xtype:'panel',
 						
 						itemId:'contingence_panel',
@@ -95,7 +107,7 @@ Ext.define('Desktop.EditorWindow', {
 					if (this.currentPage == this.totalPage) return;
 					var me = this;
 					me.setLoading(true);
-					$.post('/service/commands', {cmd:'getIndividuFromDistinctValues',view_mode:this.currentViewMode,path:[ligne,colonne,value],confirmed:JSON.stringify(confirmedIndividu),start:this.currentPage+1,nbResult:1,filtreId:current_filtreId}, function(data, textStatus) {															
+					$.post('/service/commands', {cmd:'getIndividuFromDistinctValues',xslt_id:this.currentXsltId,view_mode:this.currentViewMode,path:[ligne,colonne,value],confirmed:JSON.stringify(confirmedIndividu),start:this.currentPage+1,nbResult:1,filtreId:current_filtreId}, function(data, textStatus) {															
 							me.displayDoc(data);
 							me.currentPage = me.currentPage+1;
 							me.down("#pages").setData(me.currentPage+"/"+me.totalPage);
@@ -106,7 +118,7 @@ Ext.define('Desktop.EditorWindow', {
 					if (this.currentPage == 1) return;
 					var me = this;
 					me.setLoading(true);
-					$.post('/service/commands', {cmd:'getIndividuFromDistinctValues',view_mode:this.currentViewMode,path:[ligne,colonne,value],confirmed:JSON.stringify(confirmedIndividu),start:this.currentPage-1,nbResult:1,filtreId:current_filtreId}, function(data, textStatus) {															
+					$.post('/service/commands', {cmd:'getIndividuFromDistinctValues',xslt_id:this.currentXsltId,view_mode:this.currentViewMode,path:[ligne,colonne,value],confirmed:JSON.stringify(confirmedIndividu),start:this.currentPage-1,nbResult:1,filtreId:current_filtreId}, function(data, textStatus) {															
 							me.displayDoc(data);
 							me.currentPage = me.currentPage-1;
 							me.down("#pages").setData(me.currentPage+"/"+me.totalPage);
@@ -117,7 +129,7 @@ Ext.define('Desktop.EditorWindow', {
 					if (this.currentPage == 1) return;
 					var me = this;
 					me.setLoading(true);
-					$.post('/service/commands', {cmd:'getIndividuFromDistinctValues',view_mode:this.currentViewMode,path:[ligne,colonne,value],confirmed:JSON.stringify(confirmedIndividu),start:1,nbResult:1,filtreId:current_filtreId}, function(data, textStatus) {															
+					$.post('/service/commands', {cmd:'getIndividuFromDistinctValues',xslt_id:this.currentXsltId,view_mode:this.currentViewMode,path:[ligne,colonne,value],confirmed:JSON.stringify(confirmedIndividu),start:1,nbResult:1,filtreId:current_filtreId}, function(data, textStatus) {															
 							me.displayDoc(data);
 							me.currentPage = 1;
 							me.down("#pages").setData(me.currentPage+"/"+me.totalPage);
@@ -128,7 +140,7 @@ Ext.define('Desktop.EditorWindow', {
 					if (this.currentPage == this.totalPage) return;
 					var me = this;
 					me.setLoading(true);
-					$.post('/service/commands', {cmd:'getIndividuFromDistinctValues',view_mode:this.currentViewMode,path:[ligne,colonne,value],confirmed:JSON.stringify(confirmedIndividu),start:this.totalPage,nbResult:1,filtreId:current_filtreId}, function(data, textStatus) {															
+					$.post('/service/commands', {cmd:'getIndividuFromDistinctValues',xslt_id:this.currentXsltId,view_mode:this.currentViewMode,path:[ligne,colonne,value],confirmed:JSON.stringify(confirmedIndividu),start:this.totalPage,nbResult:1,filtreId:current_filtreId}, function(data, textStatus) {															
 							me.displayDoc(data);
 							me.currentPage = me.totalPage;
 							me.down("#pages").setData(me.currentPage+"/"+me.totalPage);
@@ -136,15 +148,26 @@ Ext.define('Desktop.EditorWindow', {
 						});
 				},
 				currentViewMode:'xml',
-				setCurrentViewMode:function(viewMode) {
+				currentXsltId:null,
+				setCurrentViewMode:function(viewMode,xslt_id) {
+					//console.log("setCurrentViewMode",viewMode,xslt_id);
 					this.currentViewMode = viewMode;
+					this.currentXsltId = xslt_id;
 					var me = this;
 					me.setLoading(true);
-					if (viewMode=='xml') {
+					if (viewMode=='xslt') {
+						this.down("#contingence_panel").hide();
+						this.down("#html_panel").show();
+						
+					} else if (viewMode=='xml') {
+						this.down("#html_panel").hide();
+						this.down("#contingence_panel").show();
 						var Mode = require('ace/mode/xml').Mode;
 						var XMLMode = new Mode();
 						this.editor.getSession().setMode(XMLMode);
 					} else {
+						this.down("#html_panel").hide();
+						this.down("#contingence_panel").show();
 						/*
 						var ModeT = require('ace/mode/html').Mode;
 						var HTMLMode = new ModeT();
@@ -152,8 +175,8 @@ Ext.define('Desktop.EditorWindow', {
 						*/
 						this.editor.getSession().setMode("ace/mode/html");
 					}
-					$.post('/service/commands', {cmd:'getIndividuFromDistinctValues',view_mode:this.currentViewMode,path:[ligne,colonne,value],confirmed:JSON.stringify(confirmedIndividu),start:this.currentPage,nbResult:1,filtreId:current_filtreId}, function(data, textStatus) {															
-							console.log("setCurrentViewMode=",viewMode,data);
+					$.post('/service/commands', {cmd:'getIndividuFromDistinctValues',xslt_id:xslt_id,view_mode:this.currentViewMode,path:[ligne,colonne,value],confirmed:JSON.stringify(confirmedIndividu),start:this.currentPage,nbResult:1,filtreId:current_filtreId}, function(data, textStatus) {															
+							//console.log("setCurrentViewMode=",viewMode,data);
 							me.displayDoc(data);							
 							me.setLoading(false);
 						});
@@ -163,14 +186,69 @@ Ext.define('Desktop.EditorWindow', {
 					var baseuri = data.baseUri[0].substring(index_s,data.baseUri[0].length-9);
 					var path = data.paths[0].substring(8,data.paths[0].length-9);
 					var doc="";	
-					if (this.currentViewMode == 'xml') {
-						doc = data.result[0].substring(10,data.result[0].length-11); // on enleve le tag "<result>"
-						//this.editor.setValue(xmlToString(doc.firstChild));
-					} else {
-						doc = data.result[0];
-					}
-					this.editor.setValue(doc);
-					
+					if (this.currentViewMode == 'xslt') {
+						/*
+						var html_panel = $("#"+this.down("#html_panel").id).find("div[name='html_panel']");
+						$(html_panel).empty();
+						
+						//$(html_panel).append(data.result[0]);
+						var xml2 = $.parseXML(data.result[0]);
+						console.log("xml2=",xml2);
+						
+						
+						
+						$(html_panel).append(xml2);
+						*/
+						var html_panel = $("#"+this.down("#html_panel").id).find("div[name='html_panel']");
+						
+						
+						html_panel.empty();
+						
+						var object = document.createElement("object");
+						object.setAttribute("width","100%");
+						object.setAttribute("height","100%");
+						object.setAttribute('data', "data:text/xml,"+data.result[0]);
+						
+						html_panel.append(object);
+						return;
+						/*
+						url = "";
+						var iframe = $("<iframe  width='100%' height='100%'></iframe>").appendTo(html_panel);
+						
+						
+						$(function () {  
+						    $(iframe).ready(function () {                        
+						        
+						    	var ifrm = iframe.get(0);
+						    	ifrm = (ifrm.contentWindow) ? ifrm.contentWindow : (ifrm.contentDocument.document) ? ifrm.contentDocument.document : ifrm.contentDocument;
+						    	doc = ifrm.document;
+						    	// '/service/commands', {cmd:'getIndividuFromDistinctValues'
+						    	doc.open();
+						    	doc.write('<form method="post" action="/service/commands?cmd=echoXml">');
+						    	doc.write('    <textarea name="xml"></textarea>');
+						    	doc.write('</form>');
+						    	doc.close();
+						    	doc.getElementsByTagName('textarea')[0].value= data.result[0];
+						    	doc.getElementsByTagName('form')[0].submit();
+						    	
+						    	
+						    	
+								
+								
+						    });
+						}); 
+						*/
+						
+						
+					} else { 						
+						if (this.currentViewMode == 'xml') {
+							doc = data.result[0].substring(10,data.result[0].length-11); // on enleve le tag "<result>"
+							//this.editor.setValue(xmlToString(doc.firstChild));
+						} else {
+							doc = data.result[0];
+						}
+						this.editor.setValue(doc);
+						
 						var n = removeBracket(removeQName(path));
 						
 						n = n.substring(1).split("/");
@@ -181,10 +259,11 @@ Ext.define('Desktop.EditorWindow', {
 							n2.push({tagName:n[t]});
 						}
 						this.editor.rootPath = n2;
-						
-					this.down('#node_path').setValue(baseuri+path);
-					this.editor.scrollToLine(1, true, true, function () {});
-					this.editor.gotoLine(1, 1, true);
+							
+						this.down('#node_path').setValue(baseuri+path);
+						this.editor.scrollToLine(1, true, true, function () {});
+						this.editor.gotoLine(1, 1, true);
+					}
 				},
 				listeners: {
 					afterrender:function() {
@@ -284,10 +363,42 @@ Ext.define('Desktop.EditorWindow', {
 																],
 																listeners: {
 																	change: function (field, newValue, oldValue) {
-																			console.log("onchange",field,newValue,oldValue);
-																			var win = field.up("window"); 
-																			win.setCurrentViewMode(newValue.vue);
+																			
+																			var win = field.up("window");
+																			var view_mode="";
+																			var xslt_id="";
+																			if (newValue.vue.indexOf("xslt")==0) {
+																				view_mode = "xslt";
+																				xslt_id = newValue.vue.substr(5);
+																			} else {
+																				view_mode = newValue.vue;
+																				xslt_id="";
+																			}
+																			win.setCurrentViewMode(view_mode,xslt_id);
 																			field.up("menu").up("menu").hide();																		
+																	},
+																	afterrender:function(c) {
+																		//var items = this.items.items;
+																		var me = this;
+																		$.get("/service/commands",{cmd:'getXsltList'},function(response) {
+																			for (var i=0;i<response.length;i++) {
+																				var xslt = response[i];
+																				var radioItem = new Ext.form.Radio({
+																                    //id : itm.data.dataId,
+																                    // custom radio label with text + images
+																                    boxLabel:xslt.name,                          
+																                    name: 'vue',
+																                    inputValue: 'xslt_'+xslt.id 
+																                   
+																                    
+																                });
+																				
+																				me.add(radioItem);
+																			}
+																			me.doLayout(); 
+																		});
+																		
+																		
 																	}
 																}
 															}

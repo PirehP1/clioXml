@@ -568,7 +568,7 @@ Ext.define('Desktop.ModalitesWindowJson', {
 						xtype: 'toolbar',
 						dock: 'top',
 						items: [
-						       {xtype:'textfield',flex:1,labelStyle: 'width:220px;white-space: nowrap;',fieldLabel:'noeud dénombré',itemId:"refCol",editable:false,emptyText:'coller un noeud xml'}
+							{xtype:'textfield',flex:1,labelStyle: 'width:220px;white-space: nowrap;',fieldLabel:'regroupement des modalités',itemId:"newCol",editable:false,emptyText:'coller un noeud xml'}     
 						]
 					},
 					
@@ -576,7 +576,8 @@ Ext.define('Desktop.ModalitesWindowJson', {
 						xtype: 'toolbar',
 						dock: 'top',
 						items: [
-						   {xtype:'textfield',flex:1,labelStyle: 'width:220px;white-space: nowrap;',fieldLabel:'regroupement des modalités',itemId:"newCol",editable:false,emptyText:'coller un noeud xml'}
+							{xtype:'textfield',flex:1,labelStyle: 'width:220px;white-space: nowrap;',fieldLabel:'noeud dénombré',itemId:"refCol",editable:false,emptyText:'coller un noeud xml'}
+						   
 						]
 					}
 					
@@ -622,7 +623,8 @@ function schemaNode_to_array2(extjs_node) {
 	var currentNode = extjs_node;
 	while (currentNode!=null) {												
 		if (currentNode.data.schemaNode.localName=='attribute') {
-			els.push({name:"@"+currentNode.data.name,name_ns:"@"+currentNode.data.name});			
+			//els.push({name:"@"+currentNode.data.name,name_ns:"@"+currentNode.data.name});
+			els.push({name:currentNode.data.name,name_ns:currentNode.data.name});
 		} else {
 			els.push({name:currentNode.data.name,name_ns:"Q{"+currentNode.data.ns+"}"+currentNode.data.name});			
 		}						
@@ -637,7 +639,7 @@ function schemaNode_to_array(node) {
 	var currentNode = node.records[0];
 	while (currentNode!=null) {												
 		if (currentNode.data.schemaNode.localName=='attribute') {
-			els.push({name:"@"+currentNode.data.name,name_ns:"@"+currentNode.data.name});			
+			els.push({name:currentNode.data.name,name_ns:currentNode.data.name});	// "@"+		
 		} else {
 			els.push({name:currentNode.data.name,name_ns:"Q{"+currentNode.data.ns+"}"+currentNode.data.name});			
 		}						
