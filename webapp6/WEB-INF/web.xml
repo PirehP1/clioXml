@@ -31,6 +31,17 @@
             <file-size-threshold>52428800</file-size-threshold>            
         </multipart-config>
     </servlet>
+    
+     <servlet>
+        <servlet-name>uploadXslt</servlet-name>
+        <servlet-class>clioxml.servlet.UploadXsltServlet</servlet-class>
+        <multipart-config>
+            <max-file-size>104857600</max-file-size>
+            <max-request-size>209715200</max-request-size>
+            <file-size-threshold>52428800</file-size-threshold>            
+        </multipart-config>
+    </servlet>
+    
 	<servlet>
         <servlet-name>uploadProjet</servlet-name>
         <servlet-class>clioxml.servlet.UploadProjetServlet</servlet-class>
@@ -40,6 +51,18 @@
             <file-size-threshold>1048576000</file-size-threshold>            
         </multipart-config>
     </servlet>
+    
+    <servlet>
+        <servlet-name>UploadFeuillesStyle</servlet-name>
+        <servlet-class>clioxml.servlet.UploadFeuillesStyleServlet</servlet-class>
+        <multipart-config>
+            <max-file-size>1048576000</max-file-size>
+            <max-request-size>1048576000</max-request-size>
+            <file-size-threshold>1048576000</file-size-threshold>            
+        </multipart-config>
+    </servlet>
+    
+    
     <servlet>
         <servlet-name>uploadBase</servlet-name>
         <servlet-class>clioxml.servlet.UploadBaseServlet</servlet-class>
@@ -101,9 +124,20 @@
     </servlet-mapping>
     
     <servlet-mapping>
+        <servlet-name>uploadXslt</servlet-name>
+        <url-pattern>/UploadXslt</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
         <servlet-name>uploadProjet</servlet-name>
         <url-pattern>/UploadProjet</url-pattern>
     </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>UploadFeuillesStyle</servlet-name>
+        <url-pattern>/UploadFeuillesStyle</url-pattern>
+    </servlet-mapping>
+    
     
     <servlet-mapping>
         <servlet-name>uploadBase</servlet-name>
