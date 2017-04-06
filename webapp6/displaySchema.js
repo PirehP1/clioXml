@@ -161,7 +161,7 @@ function removeQName(p) {
 											$.each(elementStructure.childNodes,function(key,val) {
 												if (val.localName == 'attribute') {
 													
-													data.child.push({node:val,name:get_ns_element_name(val),parent:data,type:val.getAttribute("type") || val.getAttribute("ref"),level:data.level+1,isOpen:false,isShown:true,child:[]});
+													data.child.push({node:val,name:"@"+get_ns_element_name(val),parent:data,type:val.getAttribute("type") || val.getAttribute("ref"),level:data.level+1,isOpen:false,isShown:true,child:[]});
 												}
 											});
 											
@@ -238,7 +238,7 @@ function removeQName(p) {
 						$.each(elementStructure.firstChild.firstChild.childNodes,function(key,val) {
 							if (val.localName == 'attribute') {							
 								ns_element = get_ns_element_name(val);
-								d.children.push({"iconCls":"task",schemaNode:val,name:ns_element.name,ns:ns_element.ns,type:val.getAttribute("type")||val.getAttribute("ref"),leaf:true});
+								d.children.push({"iconCls":"task",schemaNode:val,name:"@"+ns_element.name,ns:ns_element.ns,type:val.getAttribute("type")||val.getAttribute("ref"),leaf:true});
 							}
 						});
 						
@@ -296,10 +296,29 @@ function removeQName(p) {
 					
 					node.appendChild(d);
 				}
+
 			} else if (element.localName == 'simpleContent') {
-				console.log("simpleContent TODO");
 				
-						
+				
+				$.each(element.firstChild.childNodes,function(key,val) {
+							if (val.localName == 'attribute') {							
+								//ns_element = get_ns_element_name(val);
+								//node.app.push({"iconCls":"task",schemaNode:val,name:ns_element.name,ns:ns_element.ns,type:val.getAttribute("type")||val.getAttribute("ref"),leaf:true});
+								var n = {
+									"iconCls":"task",
+									"name":"@"+get_ns_element_name(val).name,
+									// pas de ns car attribute (pourtant )
+									"leaf":true,
+									expanded: false,
+									"description":"attribute",
+									type:val.getAttribute("type") || val.getAttribute("ref"),
+									schemaNode:val
+								};													
+								
+								node.appendChild(n);
+							}
+						});		
+					// node.children.push ou bien node.appendChild
 			} else	if (element.localName == 'choice' || element.localName == 'sequence') {
 				$.each(element.childNodes,function(k,val) {
 					processSequenceOrChoiceOrElement(val,node);
@@ -810,7 +829,7 @@ function getSchemaNodeFromPath(path) { // ex : /Q{}corpus/Q{}texte/Q{}auteur
 		for (var j=0;j<currentNode.childNodes.length;j++) {
 			//console.log(currentNode.childNodes[j].data);
 			if (p[i][0]=="@") {
-				if (currentNode.childNodes[j].data.schemaNode.localName  == "attribute" && ("@"+currentNode.childNodes[j].data.name) == p[i]) {
+				if (currentNode.childNodes[j].data.schemaNode.localName  == "attribute" && (currentNode.childNodes[j].data.name) == p[i]) { // "@"+currentNode.childNodes[j].data.name
 					foundChild = currentNode.childNodes[j];
 					break;
 				}
