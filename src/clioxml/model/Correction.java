@@ -9,4 +9,8 @@ public class Correction {
 	public Integer ordre;
 	public Integer nb_applique;
 	public Integer nb_applicable;
+	public String min_value;
+	public String max_value;
+	public String datatype;
+	
 }

@@ -19,28 +19,56 @@ import clioxml.model.Project;
 import clioxml.model.User;
 
 public class Corrections {
+	
+	
+	public static ArrayList<String>	 addCorrection(User user,Project p,String path,Number minValue, Number maxValue,String newValue) {
+		Correction c = new Correction();
+		
+		c.oldValue = null;
+		c.path = path;
+		c.newValue = newValue;
+		c.projectId = p.id;
+		c.datatype = "numeric";
+		c.min_value = minValue.toString();
+		c.max_value = maxValue.toString();
+		c.id = Corrections.insertCorrection(p.id, c);
+		
+		
+		return addCorrection(user,p,c);
+	}
+	
 	public static ArrayList<String>	 addCorrection(User user,Project p,String path,String modalite, String newValue) {
 		//String nbApplicable = req.getParameter("nbApplicable");
-		ArrayList<String> erreur = new ArrayList<String>();
+		
 		Correction c = new Correction();
 		
 		c.oldValue = modalite;
 		c.path = path;
 		c.newValue = newValue;
 		c.projectId = p.id;
+		c.datatype = "string";
 		c.id = Corrections.insertCorrection(p.id, c);
 		
+		
+		return addCorrection(user,p,c);
+	}
+	
+	public static ArrayList<String>	 addCorrection(User user,Project p,Correction c) {
+		ArrayList<String> erreur = new ArrayList<String>();
 		if (c.id == -1L) {
-				erreur.add("erreur lors de la creation de la correction pour : "+modalite);
+			erreur.add("erreur lors de la creation de la correction pour : "+c.oldValue);
 		} else {
 			String xquery = Corrections.getApplyCorrectionXQuery(c.id);
+			
 			try {		
 				XQueryUtil.executeRawXquery(user, p, xquery);
 				
 				String xquery3 = Corrections.getNodeTestCorrectionXQuery(c);
+				
 				String nbApplicable = XQueryUtil.executeRawXquery(user, p, xquery3);
 				
 				String xquery2  = Corrections.getNodeApplyedCorrectionXQuery(c.id);
+				
 				String nbApplique = XQueryUtil.executeRawXquery(user, p, xquery2);
 				
 				
@@ -56,38 +84,62 @@ public class Corrections {
 		}
 		return erreur;
 	}
+	
 	public static String getNodeTestCorrectionXQuery(Correction c) {
 		//Correction c = Corrections.getCorrection(id);
 		String textSelect="//text()";
 		if (c.path.indexOf("@")>-1) {
 			textSelect="";
 		}
-		String xquery = 
+		String q="";
+		if ("string".equals(c.datatype)) {
+			String xquery = 
+			
+			"declare namespace clioxml='http://www.clioxml';\n"+ 
+			"let $oldvalue := <n><![CDATA[%1$s]]></n>\n"+ 
+			 
+			"let $x := \n"+ 
+			"    for $n in collection()%2$s \n"+ 
+			"    let $elem:= string-join($n%4$s) \n"+
+			"    where $elem =$oldvalue/text() and  empty($n/@clioxml:modified_by_%3$d_was) (: and empty pour ne pas recoder un noeud déjà recodé :)\n "+ 
+			"    return $n \n"+ 
+			
+			"return count($x)";
+			
+			
+					
+			q = String.format(xquery, c.oldValue,c.path,c.id,textSelect);
+		} else { // datatype numeric
+			String xquery = 
+					
+					"declare namespace clioxml='http://www.clioxml';\n"+ 
+					"let $oldvalueMin := <n><![CDATA[%1$s]]></n>\n"+ 
+					"let $oldvalueMax := <n><![CDATA[%2$s]]></n>\n"+ 
+					"let $x := \n"+ 
+					"    for $n in collection()%3$s \n"+ 
+					"    let $elem:= string-join($n%5$s) \n"+
+					"    where $elem >= $oldvalueMin/text() and $elem < $oldvalueMax/text() and  empty($n/@clioxml:modified_by_%4$d_was) (: and empty pour ne pas recoder un noeud déjà recodé :)\n "+ 
+					"    return $n \n"+ 
+					
+					"return count($x)";
+					
+					
+							
+					q = String.format(xquery, c.min_value,c.max_value,c.path,c.id,textSelect);
+		}
 		
-		"declare namespace clioxml='http://www.clioxml';\n"+ 
-		"let $oldvalue := <n><![CDATA[%1$s]]></n>\n"+ 
-		 
-		"let $x := \n"+ 
-		"    for $n in collection()%2$s \n"+ 
-		"    let $elem:= string-join($n%4$s) \n"+
-		"    where $elem =$oldvalue/text() and  empty($n/@clioxml:modified_by_%3$d_was) (: and empty pour ne pas recoder un noeud déjà recodé :)\n "+ 
-		"    return $n \n"+ 
-		// TODO : mettre dans last_collection ?
-		"return count($x)";
-		
-		//"for $c in $x \n"+
-		//"return <r><baseuri>{base-uri($c)}</baseuri><path>{path($c)}</path></r> \n";
-
-		//"return count($x) \n"; // aulieu de count on pourrait retourner les path et docuri
-				
-		String q = String.format(xquery, c.oldValue,c.path,c.id,textSelect);
-		//System.out.println(q);
 		return q;
 		
 	}
 	public static String getApplyCorrectionXQuery(Long id) {
 		Correction c = Corrections.getCorrection(id);
 		
+		String whereStr="";
+		if ("string".equals(c.datatype)) {
+			whereStr = "$elem = $oldvalue/text() ";
+		} else {
+			whereStr = "$elem >= $oldvalueMin/text() and $elem < $oldvalueMax/text() ";
+		}
 		if (c.path.indexOf("@")>-1) { // attribut
 			ArrayList<String> pathSplitted = XmlPathUtil.splitPath(c.path);
 			String att = pathSplitted.get(pathSplitted.size()-1).substring(1);
@@ -103,14 +155,17 @@ public class Corrections {
 					"</output:serialization-parameters>\n"+
 					
 					"let $oldvalue := <n><![CDATA[%1$s]]></n>\n"+ 
+					"let $oldvalueMin := <n><![CDATA[%6$s]]></n>\n"+
+					"let $oldvalueMax := <n><![CDATA[%7$s]]></n>\n"+
+					
 					"let $newvalue := <n><![CDATA[%2$s]]></n>\n"+ 
 					"for $n in collection()%3$s\n"+
 					"    let $elem := $n/%5$s \n"+
-					"where $elem = $oldvalue/text() and empty($n/@clioxml:modified_by_%4$d_was)\n"+
+					"where "+whereStr+" and empty($n/@clioxml:modified_by_%4$d_was)\n"+
 					
 					"return (replace value of node $n/%5$s with $newvalue, insert node attribute clioxml:modified_by_%4$d_was {$oldvalue} into $n)\n";
 			
-					return String.format(xquery, c.oldValue,c.newValue,prefix,c.id,att);
+					return String.format(xquery, c.oldValue,c.newValue,prefix,c.id,att,c.min_value,c.max_value);
 		} else {
 			String xquery= 
 			"declare namespace clioxml='http://www.clioxml';\n"+
@@ -120,14 +175,16 @@ public class Corrections {
 			"</output:serialization-parameters>\n"+
 			
 			"let $oldvalue := <n><![CDATA[%1$s]]></n>\n"+ 
+			"let $oldvalueMin := <n><![CDATA[%5$s]]></n>\n"+
+			"let $oldvalueMax := <n><![CDATA[%6$s]]></n>\n"+
 			"let $newvalue := <n><![CDATA[%2$s]]></n>\n"+ 
 			"for $n in collection()%3$s\n"+
-			"    let $elem:= string-join($n%5$s) \n"+
-			"where $elem = $oldvalue/text() and empty($n/@clioxml:modified_by_%4$d_was)\n"+
+			"    let $elem:= string-join($n//text()) \n"+
+			"where "+whereStr+" and empty($n/@clioxml:modified_by_%4$d_was)\n"+
 			"let $oldnode := bin:encode-string(fn:serialize($n,$params))\n"+
 			"return (replace value of node $n with $newvalue, insert node attribute clioxml:modified_by_%4$d_was {$oldnode} into $n)\n";
 	
-			return String.format(xquery, c.oldValue,c.newValue,c.path,c.id);
+			return String.format(xquery, c.oldValue,c.newValue,c.path,c.id,c.min_value,c.max_value);
 		}
 		
 	}
@@ -206,7 +263,9 @@ public class Corrections {
             	c.nb_applicable = rs.getInt("nb_applicable");
             	c.nb_applique = rs.getInt("nb_applique");
                 c.projectId = rs.getLong("project_id");
-            
+                c.datatype = rs.getString("datatype");
+                c.min_value = rs.getString("min_value");
+                c.max_value = rs.getString("max_value");
             	
             }
             rs.close();
@@ -271,7 +330,7 @@ public class Corrections {
 		try {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:" + Service.DBPath);
-            statement = connection.prepareStatement("insert into corrections (id,project_id,path,old_value,new_value,ordre,nb_applicable,nb_applique) select ?,?,?,?,?,?,?,? from corrections");                        
+            statement = connection.prepareStatement("insert into corrections (id,project_id,path,old_value,new_value,ordre,nb_applicable,nb_applique,datatype,min_value,max_value) select ?,?,?,?,?,?,?,?,?,?,? from corrections");                        
         	int i=1;
         	statement.setLong(i++, c.id);
         	statement.setLong(i++,c.projectId);      
@@ -281,6 +340,9 @@ public class Corrections {
             statement.setInt(i++,c.ordre);
             statement.setInt(i++,c.nb_applicable);
             statement.setInt(i++,c.nb_applique);
+            statement.setString(i++,c.datatype);
+            statement.setString(i++,c.min_value);
+            statement.setString(i++,c.max_value);
             
             
                                          
@@ -309,13 +371,15 @@ public class Corrections {
 		try {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:" + Service.DBPath);
-            statement = connection.prepareStatement("insert into corrections (project_id,path,old_value,new_value,ordre) select ?,?,?,?,max(ordre)+1 from corrections");                        
+            statement = connection.prepareStatement("insert into corrections (project_id,path,old_value,new_value,ordre,datatype,min_value,max_value) select ?,?,?,?,max(ordre)+1,?,?,? from corrections");                        
         	int i=1;
         	statement.setLong(i++,c.projectId);      
             statement.setString(i++, c.path);     
             statement.setString(i++, c.oldValue);
             statement.setString(i++, c.newValue);
-            
+            statement.setString(i++, c.datatype);
+            statement.setString(i++, c.min_value);
+            statement.setString(i++, c.max_value);
                                          
             statement.executeUpdate();
             
@@ -367,6 +431,9 @@ public class Corrections {
             	c.nb_applicable = rs.getInt("nb_applicable");
             	c.nb_applique = rs.getInt("nb_applique");
                 c.projectId = rs.getLong("project_id");
+                c.datatype = rs.getString("datatype");
+                c.min_value = rs.getString("min_value");
+                c.max_value = rs.getString("max_value");
             	corrections.add(c);
             	
             }

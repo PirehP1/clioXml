@@ -60,8 +60,11 @@ import clioxml.basex.Row;
 import clioxml.basex.TreemapChild;
 import clioxml.basex.TreemapResult;
 import clioxml.codage.CodageExport;
+import clioxml.codage.CodageNumeric;
+import clioxml.codage.CodageNumericChild;
 import clioxml.codage.CodageString;
 import clioxml.codage.CodageStringChild;
+import clioxml.codage.Range;
 import clioxml.codage.Variable;
 import clioxml.filtre2.Constraint;
 import clioxml.filtre2.FiltreExport;
@@ -973,6 +976,16 @@ public class CommandsServlet extends HttpServlet {
 								for (CodageStringChild modalite:cs.children) {
 									erreur.addAll(Corrections.addCorrection(user,p,fullpath, modalite.getOldValue(),cs.newValue));									
 								}
+							} else if (c instanceof CodageNumeric) {
+								CodageNumeric cs = (CodageNumeric)c;
+								
+								for (CodageNumericChild cnc:cs.children) {
+									if (cnc instanceof Range) {
+										Range r = (Range)cnc; // TODO : Corrections.addCorrection pour Range
+										erreur.addAll(Corrections.addCorrection(user, p, fullpath,r.minValue,r.maxValue, cs.newValue));
+									}
+																		
+								}
 							}
 						}
 					}
@@ -992,6 +1005,16 @@ public class CommandsServlet extends HttpServlet {
 								
 								for (CodageStringChild modalite:cs.children) {
 									erreur.addAll(Corrections.addCorrection(user,p,fullpath, modalite.getOldValue(),cs.newValue));									
+								}
+							} else if (c instanceof CodageNumeric) {
+								CodageNumeric cs = (CodageNumeric)c;
+								
+								for (CodageNumericChild cnc:cs.children) {
+									if (cnc instanceof Range) {
+										Range r = (Range)cnc; // TODO : Corrections.addCorrection pour Range 
+										erreur.addAll(Corrections.addCorrection(user, p, fullpath,r.minValue,r.maxValue, cs.newValue));
+									}
+																		
 								}
 							}
 						}
