@@ -370,7 +370,7 @@ Ext.define('Desktop.SchemaWindow', {
 													if (val.localName == 'attribute') {										
 														var n = {
 															"iconCls":"task",
-															"name":get_ns_element_name(val).name,
+															"name":"@"+get_ns_element_name(val).name,
 															// pas de ns car attribute (pourtant )
 															"leaf":true,
 															expanded: false,
