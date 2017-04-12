@@ -304,6 +304,9 @@ function removeQName(p) {
 							if (val.localName == 'attribute') {							
 								//ns_element = get_ns_element_name(val);
 								//node.app.push({"iconCls":"task",schemaNode:val,name:ns_element.name,ns:ns_element.ns,type:val.getAttribute("type")||val.getAttribute("ref"),leaf:true});
+								
+								
+								
 								var n = {
 									"iconCls":"task",
 									"name":"@"+get_ns_element_name(val).name,
@@ -316,6 +319,13 @@ function removeQName(p) {
 								};													
 								
 								node.appendChild(n);
+								
+								/*
+								var ns_element = get_ns_element_name(val);
+								var n = {"iconCls":"task",schemaNode:val,name:"@"+ns_element.name,ns:ns_element.ns,type:val.getAttribute("type")||val.getAttribute("ref"),leaf:true};
+								//node.children.push(n);
+								node.appendChild(n);
+								*/
 							}
 						});		
 					// node.children.push ou bien node.appendChild
