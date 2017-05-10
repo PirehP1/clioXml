@@ -4,7 +4,7 @@ Querying of XML Database
 Alain Dallo, Stéphane Lamassé, Laurent Frobert
 
 
-(version [compilée](#compilation) et un fichier xml de données [lien](http://pireh-dev.univ-paris1.fr/ClioXml/aiuXML.xml)
+(version [compilée](#compilation) et un fichier xml de données [lien](http://pireh-dev.univ-paris1.fr/ClioXml/aiuXML.xml.zip)
 
 ## Présentation
 
