@@ -113,4 +113,4 @@ Build failed
 
 
 ### <a name="compilation"></a> Versions compilées
-Vous pouvez accéder à une version compilée à partir de ce [lien](http://pireh-dev.univ-paris1.fr/ClioXml/clioxml-bin-0.29.8.zip).  
+Vous pouvez accéder à une version compilée à partir de ce [lien](http://pireh-dev.univ-paris1.fr/ClioXml/clioxml-bin-0.29.9.zip).  
