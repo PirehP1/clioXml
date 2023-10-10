@@ -1,5 +1,5 @@
 # clioXml
-Logiciel programmé en java d'interrogation de base de données XML à travers une interface web.
+Logiciel java d'interrogation de base de données XML à travers une interface web.
 
 Alain Dallo, Stéphane Lamassé, Laurent Frobert
 
