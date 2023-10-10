@@ -1,3 +1,13 @@
+- [clioXml](#clioxml)
+   * [Présentation](#présentation)
+   * [Version serveur](#version-serveur)
+   * [Version locale](#version-locale)
+   * [Installation](#installation)
+      + [À partir de la version compilée](#à-partir-de-la-version-compilée)
+      + [Compilation via ant](#compilation-via-ant)
+      + [Installation d'Apache Ant sur Mac OS X](#installation-dapache-ant-sur-mac-os-x)
+   * [Utilisation de la version locale](#utilisation-de-la-version-locale)
+
 # clioXml
 Logiciel java d'interrogation de base de données XML à travers une interface web.
 
@@ -19,11 +29,11 @@ Celui-ci a donc quatre objectifs principaux :
 
 Nous espérons qu'il intéressera les étudiants et les chercheurs en sciences humaines n'ayant pas une grande habitude de l'utilisation de l'ordinateur et une très faible connaissance des principes des bases de données xml, des schémas et de leurs interrogations.
 
-### Version serveur
+## Version serveur
 
 La version serveur doit permettre à  une communauté constituée autour d'un projet d'interroger une structure commune pour construire son propre rapport aux données. Elle peut-être utilisée comme une interface pédagogique, ou comme un service.  Ainsi nous l'utilisons, à l'université Paris Panthéon-Sorbonne, pour permettre à nos étudiants d'interroger leurs données sans aucune installation de leur côté. 
 
-### Version locale
+## Version locale
 Celle-ci est plutôt destinée aux chercheurs et aux utilisateurs particuliers.
 * Le public ciblé n'aura pas forcément connaissance de la structure des données qu'il souhaite interroger au moment où il commence son exploration.
 * Ce public ayant des modes de travail variés, le logiciel peut être utilisé en situation de mobilité avec ou sans accès à internet sur une base de données à distance sur serveur web ou sur une copie en local d'une base ou d'une partie de celle-ci.
