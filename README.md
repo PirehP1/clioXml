@@ -104,10 +104,9 @@ Buildfile: build.xml does not exist!
 Build failed
 ```
 
-## Utilisation de la version local 
+## Utilisation de la version locale
 
-### Linux et MacOs 
-* Définir un nouveau projet, donnez lui le nom que vous souhaitez, puis entrer dans le projet 
+* Définir un nouveau projet, donnez-lui le nom que vous souhaitez, puis entrer dans le projet 
 * Il faut alors :
 	* importer votre fichier xml, qui doit être compressé (.zip)
 	* créer/importer un schéma pour ce projet 
