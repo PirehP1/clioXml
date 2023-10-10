@@ -1,10 +1,11 @@
 - [clioXml](#clioxml)
    * [Présentation](#présentation)
-   * [Version serveur](#version-serveur)
-   * [Version locale](#version-locale)
+   * [Versions du logiciel](#versions-du-logiciel)
+      + [Version serveur](#version-serveur)
+      + [Version locale (standalone)](#version-locale-standalone)
    * [Installation](#installation)
       + [À partir de la version compilée](#à-partir-de-la-version-compilée)
-      + [Compilation via ant](#compilation-via-ant)
+      + [Compilation via Apache ant](#compilation-via-apache-ant)
       + [Installation d'Apache Ant sur Mac OS X](#installation-dapache-ant-sur-mac-os-x)
    * [Utilisation de la version locale](#utilisation-de-la-version-locale)
 
@@ -29,11 +30,13 @@ Celui-ci a donc quatre objectifs principaux :
 
 Nous espérons qu'il intéressera les étudiants et les chercheurs en sciences humaines n'ayant pas une grande habitude de l'utilisation de l'ordinateur et une très faible connaissance des principes des bases de données xml, des schémas et de leurs interrogations.
 
-## Version serveur
+## Versions du logiciel
 
+### Version serveur
 La version serveur doit permettre à  une communauté constituée autour d'un projet d'interroger une structure commune pour construire son propre rapport aux données. Elle peut-être utilisée comme une interface pédagogique, ou comme un service.  Ainsi nous l'utilisons, à l'université Paris Panthéon-Sorbonne, pour permettre à nos étudiants d'interroger leurs données sans aucune installation de leur côté. 
 
-## Version locale
+### Version locale (standalone)
+
 Celle-ci est plutôt destinée aux chercheurs et aux utilisateurs particuliers.
 * Le public ciblé n'aura pas forcément connaissance de la structure des données qu'il souhaite interroger au moment où il commence son exploration.
 * Ce public ayant des modes de travail variés, le logiciel peut être utilisé en situation de mobilité avec ou sans accès à internet sur une base de données à distance sur serveur web ou sur une copie en local d'une base ou d'une partie de celle-ci.
@@ -46,7 +49,7 @@ Le plus simple consiste à télécharger la version compilée à partir de la [p
 
 Une fois le fichier décompressé, clioXml peut être lancé via le fichier `launch.bat` (windows) ou `launch.sh` (linux et mac os) présents dans le répertoire `build/`. Il est ensuite possible d'accéder au logiciel via l'URL : [http://localhost:8090](http://localhost:8090).
 
-### Compilation via ant
+### Compilation via Apache ant
 * Après avoir cloné le contenu du dépôt 
 * Il faut compiler avec [Apache Ant](https://ant.apache.org/) (version jdk 1.8) qui utilise le fichier `Build.xml`. Pour cela, il faut se placer à la racine du répertoire `clioXml/` et :
 ```sh
