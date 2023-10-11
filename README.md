@@ -47,7 +47,7 @@ Celle-ci est plutôt destinée aux chercheurs et aux utilisateurs particuliers.
 
 Le plus simple consiste à télécharger la version compilée à partir de la [page Releases](https://github.com/PirehP1/clioXml/releases) du dépôt. Lien direct pour télécharger la dernière version en date : [https://github.com/PirehP1/clioXml/releases/download/v0.3/clioXml_build_windows.zip](https://github.com/PirehP1/clioXml/releases/download/v0.3/clioXml_build_windows.zip)
 
-Une fois le fichier décompressé, clioXml peut être lancé via le fichier `launch.bat` (windows) ou `launch.sh` (linux et mac os) présents dans le répertoire `build/`. Il est ensuite possible d'accéder au logiciel via l'URL : [http://localhost:8090](http://localhost:8090).
+Une fois le fichier décompressé, clioXml peut être lancé via le fichier `launch.bat` (windows) ou `launch.sh` (linux et mac os) présents dans le répertoire `build/`. Il est ensuite possible d'accéder au logiciel via l'URL : [http://localhost:8090](http://localhost:8090), sur Windows le navigateur par défaut devrait se lancer automatiquement vers l'URL en question.
 
 ### Compilation via Apache ant
 * Après avoir cloné le contenu du dépôt 
